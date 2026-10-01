@@ -1,7 +1,3 @@
-// Optional: put the number that should receive the WhatsApp message, in international format
-// without + or spaces, e.g. "923001234567". Leave empty to let the sender pick a contact.
-var OWNER_WHATSAPP = "";
-
 var $ = function (id) { return document.getElementById(id); };
 var val = function (id) { return ($(id).value || "").trim(); };
 
@@ -195,10 +191,10 @@ function validate() {
     ["name", val("name").length < 3],
     ["caste", val("caste").length < 2],
     ["father", val("father").length < 3],
-    ["dob", !val("dob") || val("dob") > today()],
+    ["dob", !val("dob") || val("dob") > today() || val("dob") < "1900-01-01"],
     ["cnic", digits(val("cnic")).length !== 13],
-    ["cnic_issue", !val("cnic_issue")],
-    ["cnic_exp", !val("cnic_exp")],
+    ["cnic_issue", !val("cnic_issue") || val("cnic_issue") > today() || val("cnic_issue") < "1900-01-01"],
+    ["cnic_exp", !val("cnic_exp") || val("cnic_exp") > "2100-12-31" || (val("cnic_issue") && val("cnic_exp") <= val("cnic_issue"))],
     ["a5", val("a5").length < 5],
     ["mobile", digits(val("mobile")).length !== 11 || val("mobile").slice(0, 2) !== "03"]
   ];
@@ -240,72 +236,10 @@ document.getElementById("form").addEventListener("input", function (e) {
 });
 $("agree").addEventListener("change", function () { if (this.checked) $("agreeErr").style.display = "none"; });
 
-// Build plain-text summary
-function fmtDate(iso) { if (!iso) return ""; var p = iso.split("-"); return p[2] + "/" + p[1] + "/" + p[0]; }
-function line(label, v) { return label + ": " + (v || "-"); }
-function summary() {
-  renumber();
-  var purposes = [];
-  if ($("p_visa").checked) purposes.push("Visa Issuing Authority");
-  if ($("p_imm").checked) purposes.push("Immigration Authorities (" + (val("p_imm_t") || "-") + ")");
-  if ($("p_gov").checked) purposes.push("Government employment (" + (val("p_gov_t") || "-") + ")");
-  if ($("p_pvt").checked) purposes.push("Private employment (" + (val("p_pvt_t") || "-") + ")");
-  if ($("p_oth").checked) purposes.push("Other: " + (val("p_oth_t") || "-"));
-  var L = [];
-  L.push("POLICE CLEARANCE CERTIFICATE - APPLICATION");
-  L.push("Police Facilitation Centre, Shaheed Benazir Abad", "");
-  L.push(line("Purpose", purposes.join("; ")));
-  L.push(line(num(1) + ". Name", val("name").toUpperCase()), line("   Caste", val("caste")));
-  L.push(line(num(2) + ". S/o, D/o", val("father")), line("   W/o", val("husband")));
-  L.push(line("   Date of birth", fmtDate(val("dob"))), line("   Place of birth", val("pob")));
-  L.push(line(num(3) + ". CNIC No", val("cnic")), line("   Issue", fmtDate(val("cnic_issue"))), line("   Expiry", fmtDate(val("cnic_exp"))));
-  if (passportOn()) L.push(line(num(4) + ". Passport No", val("pass")), line("   Issue", fmtDate(val("pass_issue"))), line("   Expiry", fmtDate(val("pass_exp"))));
-  L.push(line(num(5) + ". Address (SBA)", val("a5")), "   Residing " + (fmtDate(val("a5_from")) || "-") + " to " + (fmtDate(val("a5_to")) || "-") + " (" + (val("a5_y") || "-") + " years)");
-  if (val("a6")) L.push(line(num(6) + ". Address 01 as per CNIC", val("a6")), "   Residing " + (fmtDate(val("a6_from")) || "-") + " to " + (fmtDate(val("a6_to")) || "-") + " (" + (val("a6_y") || "-") + " years)");
-  if (val("a7")) L.push(line(num(7) + ". Address 02 as per CNIC", val("a7")), "   Residing " + (fmtDate(val("a7_from")) || "-") + " to " + (fmtDate(val("a7_to")) || "-") + " (" + (val("a7_y") || "-") + " years)");
-  L.push(line(num(8) + ". Mobile (applicant)", val("mobile")), line("   Mobile bearer", val("mobile_b")));
-  L.push(line(num(9) + ". Reason if going abroad", val("reason")), line("   Proposed stay", val("stay")));
-  L.push(line(num(10) + ". Police station 1", val("ps1")), line("    Police station 2", val("ps2")));
-  L.push(line(num(11) + ". Current profession/job", val("job")), num(12) + ". Deponents:");
-  for (var i = 1; i <= 2; i++) {
-    var rel = document.querySelector('input[name="d' + i + '_rel"]:checked');
-    L.push("  #" + i + " " + (val("d" + i + "_name") || "-") + ", S/o D/o W/o " + (val("d" + i + "_father") || "-") +
-      ", CNIC " + (val("d" + i + "_cnic") || "-") + ", Mobile " + (val("d" + i + "_mob") || "-") +
-      ", Address " + (val("d" + i + "_addr") || "-") + ", " + (rel ? rel.value : "-"));
-  }
-  L.push(line("Case registered (if any)", val("case") ? val("case") + " at PS " + val("case_ps") : "None"));
-  L.push("", "Applicant confirms the statement of affirmation.");
-  return L.join("\n");
-}
-
 // Actions
-function copyText(t) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    return navigator.clipboard.writeText(t).catch(function () { return legacyCopy(t); });
-  }
-  return legacyCopy(t);
-}
-function legacyCopy(t) {
-  return new Promise(function (res, rej) {
-    var ta = document.createElement("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
-    document.body.appendChild(ta); ta.select();
-    try { document.execCommand("copy") ? res() : rej(); } catch (e) { rej(e); } ta.remove();
-  });
-}
 $("btnPrint").addEventListener("click", function () {
   if (!validate()) return;
   try { window.print(); } catch (e) { toast("Printing is not available here. Open the link in your browser."); }
-});
-$("btnCopy").addEventListener("click", function () {
-  if (!validate()) return;
-  copyText(summary()).then(function () { toast("Details copied. Paste them anywhere."); },
-    function () { toast("Could not copy. Try the Print / Save as PDF button."); });
-});
-$("btnWA").addEventListener("click", function () {
-  if (!validate()) return;
-  var url = "https://wa.me/" + OWNER_WHATSAPP + "?text=" + encodeURIComponent(summary());
-  var w = null; try { w = window.open(url, "_blank"); if (w) w.opener = null; } catch (e) {}
-  if (!w) copyText(summary()).then(function () { toast("Details copied. Paste them into WhatsApp."); }, function () { toast("Could not open WhatsApp."); });
 });
 $("btnClear").addEventListener("click", function () {
   if (!confirm("Clear everything you have entered?")) return;
@@ -366,14 +300,16 @@ window.addEventListener("resize", function () {
   if (window.innerWidth === lastW) return;
   lastW = window.innerWidth; setMode(); fitScreen(); fitPage();
 });
+function markDates() {
+  document.querySelectorAll("input[type=date]").forEach(function (e) { e.classList.toggle("empty", !e.value); });
+}
 window.addEventListener("beforeprint", function () {
+  markDates(); // blank dates must print as blank lines, not "mm/dd/yyyy"
   // always print the A4 layout, even from a phone
   document.documentElement.classList.remove("mob");
   fitPage();
 });
 window.addEventListener("afterprint", function () { setMode(); fitScreen(); fitPage(); });
-$("zIn").addEventListener("click", function () { USER_Z = Math.min(2, USER_Z + 0.15); fitScreen(); });
-$("zOut").addEventListener("click", function () { USER_Z = Math.max(0.5, USER_Z - 0.15); fitScreen(); });
 updateAddr(); updatePassport();
 fitScreen(); fitPage();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPage);
