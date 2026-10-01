@@ -411,3 +411,53 @@ html.mob .actions {
 html.mob .actions .btn { min-height: 48px; padding: 10px 8px; font-size: 15px; }
 html.mob .actions .btn.primary, html.mob #btnClear { grid-column: 1 / -1; }
 html.mob .toast { bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+
+
+/* Compact action buttons that follow the page width */
+button.btn { padding: 6px 12px; min-height: 36px; font-size: 13px; border-radius: 5px; }
+button.btn.small { padding: 6px 10px; min-width: 36px; }
+.actions {
+  left: 50%; right: auto; transform: translateX(-50%);
+  width: min(794px, 100%); box-sizing: border-box;
+  border: 1px solid var(--line); border-bottom: none; border-radius: 8px 8px 0 0;
+  padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px)); gap: 6px;
+}
+.toast { bottom: calc(58px + env(safe-area-inset-bottom, 0px)); }
+html.mob .actions {
+  position: static; transform: none; left: auto; width: auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+  max-width: 720px; margin: 0 auto; background: transparent; border: none; border-radius: 0;
+  padding: 2px 8px calc(16px + env(safe-area-inset-bottom, 0px));
+}
+html.mob .actions .btn { min-height: 40px; padding: 6px 6px; font-size: 13.5px; }
+html.mob .actions .btn.primary, html.mob #btnClear { grid-column: auto; }
+
+
+/* Action buttons sit directly under the page, same width as the sheet */
+.actions, html.mob .actions {
+  position: static; transform: none; left: auto; right: auto; width: auto; max-width: none;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+  margin: 10px 0 0; padding: 0; background: transparent; border: none; border-radius: 0;
+}
+html.mob .actions { display: grid; grid-template-columns: 1fr 1fr; margin-top: 8px; }
+.wrap, html.mob .wrap { padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+.toast, html.mob .toast { bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+
+
+/* Footer note: justified text, last line centred */
+.privacy { text-align: justify; text-align-last: center; hyphens: auto; -webkit-hyphens: auto; line-height: 1.5; }
+
+
+/* Bug fixes found while testing */
+/* 1) the screen padding added below the page must not exist in print (it pushed the office box onto page 2) */
+@media print {
+  .wrap, html.mob .wrap { padding: 0 !important; }
+}
+/* 2) the footer note must not make the page container wider than the sheet */
+.privacy { width: 0; min-width: 100%; box-sizing: border-box; }
+
+/* 3) unfilled date boxes and example placeholders print as clean blank lines */
+@media print {
+  input[type=date].empty::-webkit-datetime-edit { color: transparent !important; }
+  input::placeholder, textarea::placeholder { color: transparent !important; }
+}
