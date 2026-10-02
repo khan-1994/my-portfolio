@@ -14,7 +14,7 @@
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: white) {
   :root:not([data-theme="light"]) {
     --bg: #0d1219; --paper: #161d27; --ink: #e6ebf2; --muted: #93a0b2;
     --line: #4a586b; --soft: #1d2632; --accent: #7fb0ea; --accent-ink: #0d1219; --alert: #ff8a80;
