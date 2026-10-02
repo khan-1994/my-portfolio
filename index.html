@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12326b">
+<link rel="icon" href="data:,">
+<title>Police Clearance Certificate – Application Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&family=Source+Serif+4:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+<div class="scale" id="scale">
+<form class="sheet" id="form" autocomplete="off" novalidate>
+<div class="page" id="page">
+
+  <h1>Application Form for the Use of Police Record Verification System</h1>
+  <div class="top">
+    <div class="top-text">
+      <p class="addr">To,<br><b>The Incharge / Manager,<br>Police Facilitation Centre,<br>Shaheed Benazir Abad</b></p>
+      <p class="subject">Subject: <span>Request for provision of police clearance certificate</span></p>
+      <p class="intro">It is requested that I have required a Police Clearance Certificate for the requirement of the authority mentioned below.</p>
+    </div>
+    <label class="photo" id="photoBox" title="Add passport-size photo">
+      <span id="photoHint">Tap to add<br>passport-size<br>photo</span>
+      <input type="file" accept="image/*" id="photoInput" aria-label="Upload passport-size photo">
+    </label>
+  </div>
+
+  <h2>Tick only one and fill in the blank area.</h2>
+
+  <div class="purposes" id="purposes">
+    <div class="purpose-line">
+      <div class="purpose"><input type="checkbox" id="p_visa"><div class="lab"><label for="p_visa">Visa Issuing Authority</label></div></div>
+      <div class="purpose"><input type="checkbox" id="p_imm"><div class="lab"><label for="p_imm">Immigration Authorities</label><input type="text" id="p_imm_t" aria-label="Name of country" placeholder="Country name"></div></div>
+    </div>
+    <div class="purpose"><input type="checkbox" id="p_gov"><div class="lab"><label for="p_gov">Government employment in the department</label><input type="text" id="p_gov_t" aria-label="Department name"></div></div>
+    <div class="purpose"><input type="checkbox" id="p_pvt"><div class="lab"><label for="p_pvt">Private employment in the company / factory</label><input type="text" id="p_pvt_t" aria-label="Company or factory name"></div></div>
+    <div class="purpose"><input type="checkbox" id="p_oth"><div class="lab"><label for="p_oth">Any other authority or purpose (describe here)</label><input type="text" id="p_oth_t" aria-label="Other purpose"></div></div>
+  </div>
+  <div class="err" id="purposeErr" style="display:none;position:static">Please tick one purpose.</div>
+
+  <h2>My particulars are under</h2>
+
+  <div class="row"><div class="num">1.</div>
+    <div class="fields c2">
+      <div class="f"><label class="req" for="name">Name (in capital letters)</label><input type="text" id="name" class="caps" autocapitalize="characters"><span class="err">Enter your full name.</span></div>
+      <div class="f"><label class="req" for="caste">Caste</label><input type="text" id="caste"><span class="err">Enter your caste.</span></div>
+    </div>
+  </div>
+
+  <div class="row"><div class="num">2.</div>
+    <div class="fields c2">
+      <div class="f"><label class="req" for="father">S/o, D/o</label><input type="text" id="father"><span class="err">Enter father's name.</span></div>
+      <div class="f"><label for="husband">W/o (in case of married women)</label><input type="text" id="husband"></div>
+      <div class="f"><label class="req" for="dob">Date of birth</label><input type="date" id="dob"><span class="err">Enter a valid date of birth.</span></div>
+      <div class="f"><label for="pob">Place of birth</label><input type="text" id="pob"></div>
+    </div>
+  </div>
+
+  <div class="row"><div class="num">3.</div>
+    <div class="fields c3">
+      <div class="f"><label class="req" for="cnic">CNIC No.</label><input type="tel" id="cnic" inputmode="numeric" placeholder="00000-0000000-0" maxlength="15"><span class="err">CNIC must be 13 digits.</span></div>
+      <div class="f"><label class="req" for="cnic_issue">Date of issue</label><input type="date" id="cnic_issue"><span class="err">Enter a valid issue date.</span></div>
+      <div class="f"><label class="req" for="cnic_exp">Date of expiry</label><input type="date" id="cnic_exp"><span class="err">Enter a valid expiry date, after the issue date.</span></div>
+    </div>
+  </div>
+
+  <div class="row" id="passRow" style="display:none"><div class="num">4.</div>
+    <div class="fields c3">
+      <div class="f"><label for="pass">Passport No.</label><input type="text" id="pass" class="caps"></div>
+      <div class="f"><label for="pass_issue">Date of issue</label><input type="date" id="pass_issue"></div>
+      <div class="f"><label for="pass_exp">Date of expiry</label><input type="date" id="pass_exp"></div>
+    </div>
+  </div>
+
+  <div class="row"><div class="num">5.</div>
+    <div class="fields c4">
+      <div class="f span"><label class="req" for="a5">Address of the District SBA (where the certificate is required)</label><textarea id="a5" rows="1"></textarea><span class="err">Enter your address.</span></div>
+      <div class="f"><label for="a5_from">Residing from</label><input type="date" id="a5_from"></div>
+      <div class="f"><label for="a5_to">To</label><input type="date" id="a5_to"></div>
+      <div class="f"><label for="a5_y">Years</label><input type="text" id="a5_y" readonly></div>
+      <div class="check since"><input type="checkbox" id="a5_birth"><label for="a5_birth">Since birth</label></div>
+    </div>
+  </div>
+
+  <div class="row" id="addr6Row" style="display:none"><div class="num">6.</div>
+    <div class="fields c4">
+      <div class="f span"><label for="a6">Address 01 as per CNIC (if different from No. <span class="ref" data-n="5">5</span>)</label><textarea id="a6" rows="1"></textarea><button type="button" class="linkbtn hide-print rmaddr" data-rm="6">Remove this address</button></div>
+      <div class="f"><label for="a6_from">Residing from</label><input type="date" id="a6_from"></div>
+      <div class="f"><label for="a6_to">To</label><input type="date" id="a6_to"></div>
+      <div class="f"><label for="a6_y">Years</label><input type="text" id="a6_y" readonly></div>
+      <div class="check since"><input type="checkbox" id="a6_birth"><label for="a6_birth">Since birth</label></div>
+    </div>
+  </div>
+
+  <div class="row" id="addr7Row" style="display:none"><div class="num">7.</div>
+    <div class="fields c4">
+      <div class="f span"><label for="a7">Address 02 as per CNIC (if different from No. <span class="ref" data-n="5">5</span> and <span class="ref" data-n="6">6</span>)</label><textarea id="a7" rows="1"></textarea><button type="button" class="linkbtn hide-print rmaddr" data-rm="7">Remove this address</button></div>
+      <div class="f"><label for="a7_from">Residing from</label><input type="date" id="a7_from"></div>
+      <div class="f"><label for="a7_to">To</label><input type="date" id="a7_to"></div>
+      <div class="f"><label for="a7_y">Years</label><input type="text" id="a7_y" readonly></div>
+      <div class="check since"><input type="checkbox" id="a7_birth"><label for="a7_birth">Since birth</label></div>
+    </div>
+  </div>
+
+  <div class="addaddr hide-print"><button type="button" class="linkbtn" id="btnAddAddr">+ Add another address (as per CNIC)</button></div>
+
+  <div class="row"><div class="num">8.</div>
+    <div class="fields c2">
+      <div class="f"><label class="req" for="mobile">Mobile No. (applicant)</label><input type="tel" id="mobile" inputmode="numeric" placeholder="0300-1234567" maxlength="12"><span class="err">Enter a valid mobile number, e.g. 0300-1234567.</span></div>
+      <div class="f"><label for="mobile_b">Mobile No. bearer</label><input type="text" id="mobile_b"></div>
+    </div>
+  </div>
+
+  <div class="row"><div class="num">9.</div>
+    <div class="fields c2">
+      <div class="f"><label for="reason">Reason for, if going abroad</label><input type="text" id="reason"></div>
+      <div class="f"><label for="stay">Proposed period of stay</label><input type="text" id="stay"></div>
+    </div>
+  </div>
+
+  <div class="row"><div class="num">10.</div>
+    <div class="fields c2">
+      <div class="f"><label for="ps1">Concerned police station of SBA – 1) PS</label><input type="text" id="ps1"></div>
+      <div class="f"><label for="ps2">2) PS</label><input type="text" id="ps2"></div>
+    </div>
+  </div>
+
+  <div class="row"><div class="num">11.</div>
+    <div class="fields c2">
+      <div class="f"><label for="job">Current profession / job</label><input type="text" id="job"></div>
+    </div>
+  </div>
+
+  <div class="row" style="border-bottom:none"><div class="num">12.</div>
+    <div>
+      <div class="sub" style="font-weight:600">Details of deponents / witnesses from whom police can verify your character and residential address</div>
+      <div class="dep-table"><div class="dep-title">Deponents (Witnesses) Detail</div><div class="dep-grid" id="deps"></div></div>
+      <p class="note">Note: if any case is registered against deponents / witnesses, they must be informed at the time of entry.</p>
+      <div class="err" id="depErr" style="display:none;position:static">Fill in all details of both witnesses and tick Neighbor or Family Member for each.</div>
+    </div>
+  </div>
+
+  <div class="statement"><b>Statement of applicant:</b> It is solemnly affirmed that I am not involved in any criminal and anti-social or anti-state activity. No case other than the details below is registered against me. My above particulars are correct. I know that in case of providing false information I should be prosecuted.
+    <div class="check agree"><input type="checkbox" id="agree"><label for="agree" class="req">I confirm the statement above.</label></div>
+  </div>
+  <div class="err" id="agreeErr" style="display:none;position:static">Please confirm the statement.</div>
+
+  <div class="fields two">
+    <div class="f"><label for="case">Details of case if registered any</label><input type="text" id="case"></div>
+    <div class="f"><label for="case_ps">At PS</label><input type="text" id="case_ps"></div>
+  </div>
+
+  <div class="sign-wrap">
+    <div>
+      <div class="sub">Signature of applicant</div>
+      <div class="sig" id="sig" aria-label="Space for handwritten signature"></div>
+      <div class="sig-note"><span id="sigName"></span></div>
+    </div>
+    <div>
+      <div class="sub">Thumb impression (LTI/RTI)</div>
+      <div class="thumb" aria-label="Space for thumb impression"></div>
+    </div>
+  </div>
+
+  <div class="office"><div class="office-h">For office use only</div><div class="office-cell"><b>TID No:</b></div><div class="office-cell"><b>DEO Name:</b></div></div>
+</div>
+</form>
+<div class="actions">
+  <button type="button" class="btn primary" id="btnPrint">Print / Save as PDF</button>
+  <button type="button" class="btn" id="btnClear">Clear form</button>
+</div>
+</div>
+<p class="privacy">This is a printable copy of the application form, not an official website. Nothing you type here is saved or uploaded. It stays in your browser and is cleared when you close or refresh the page. Only what you print leaves it.</p>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
