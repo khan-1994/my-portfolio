@@ -12,8 +12,12 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="outer">          <!-- purani class name rakhein -->
+<div class="inner">          <!-- purani class name rakhein -->
+<form id="appForm" novalidate>   <!-- id script.js se match karein -->
 <div class="page" id="page">
   <h1>Application for Police Clearance Certificate</h1>
+
   <div class="top">
     <div class="top-text">
       <p class="addr">
@@ -24,9 +28,6 @@
       <p class="subject">Subject: <span>Request for Issuance of Police Clearance Certificate</span></p>
       <p class="intro">I would like to request the issuance of a Police Clearance Certificate, which is required by the authority mentioned below.</p>
     </div>
-  </div>
-  <!-- baqi form yahan aayega -->
-</div>
     <label class="photo" id="photoBox" title="Add passport-size photo">
       <span id="photoHint">Tap to add<br>passport-size<br>photo</span>
       <input type="file" accept="image/*" id="photoInput" aria-label="Upload passport-size photo">
@@ -34,6 +35,7 @@
   </div>
 
   <h2>Tick only one and fill in the blank.</h2>
+  ...
 
   <div class="purposes" id="purposes">
     <div class="purpose-line">
