@@ -722,3 +722,112 @@ html.mob .actions { display: grid; grid-template-columns: 1fr 1fr; margin-top: 8
   h1 { background: #12336b !important; color: #fff !important; border-radius: 0 !important; box-shadow: none !important; }
   .actions, .toast, .privacy { display: none !important; }
 }
+
+
+/* ===== Polished print layout: clean official A4 application ===== */
+@media print {
+  @page { size: A4 portrait; margin: 6mm; }
+  html, body {
+    width: auto !important; margin: 0 !important; padding: 0 !important;
+    background: #fff !important; color: #172b45 !important;
+    font-family: Arial, "Helvetica Neue", sans-serif !important;
+    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+  }
+  .wrap { width: auto !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
+  .scale { width: auto !important; zoom: 1 !important; }
+  .sheet {
+    width: 748px !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important;
+    border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+    background: #fff !important; color: #172b45 !important;
+    font-family: Arial, "Helvetica Neue", sans-serif !important; font-size: 11px !important; line-height: 1.22 !important;
+  }
+  .page {
+    border: 2px double #274c78 !important; border-radius: 0 !important; padding: 7px 8px !important;
+    overflow: visible !important; background: #fff !important; color: #172b45 !important;
+  }
+  h1 {
+    background: #fff !important; color: #173b67 !important; border: 0 !important;
+    border-top: 3px solid #173b67 !important; border-bottom: 1px solid #8da4bf !important;
+    border-radius: 0 !important; box-shadow: none !important; padding: 6px 5px 7px !important;
+    margin: 0 0 6px !important; font-family: Arial, "Helvetica Neue", sans-serif !important;
+    font-size: 15px !important; font-weight: 800 !important; line-height: 1.25 !important;
+    letter-spacing: .45px !important; text-align: center !important; text-transform: uppercase !important;
+  }
+  h1::before {
+    content: "POLICE FACILITATION CENTRE  •  SHAHEED BENAZIRABAD";
+    display: block; margin-bottom: 3px; color: #4b6482 !important;
+    font-size: 8px; font-weight: 700; line-height: 1.2; letter-spacing: 1px;
+  }
+  .top { gap: 10px !important; align-items: flex-start !important; }
+  .addr, .subject { color: #172b45 !important; font-size: 10.5px !important; line-height: 1.25 !important; margin: 0 0 4px !important; }
+  .intro { color: #394b60 !important; font-size: 10px !important; margin: 3px 0 !important; }
+  .subject span { color: #173b67 !important; text-decoration-thickness: 1px; }
+  .photo { border: 1px solid #667f9e !important; border-radius: 0 !important; background: #fff !important; color: #66758a !important; box-shadow: none !important; }
+  .photo input { display: none !important; }
+  .photo img { object-fit: cover; }
+  h2 {
+    margin: 6px 0 3px !important; padding: 3px 6px !important; border: 0 !important;
+    border-left: 3px solid #274f7f !important; border-bottom: 1px solid #c7d4e2 !important;
+    border-radius: 0 !important; background: #edf3f9 !important; color: #173b67 !important;
+    font-size: 10.5px !important; font-weight: 800 !important; line-height: 1.2 !important;
+    letter-spacing: .25px !important; text-transform: uppercase !important; box-shadow: none !important;
+  }
+  #purposes { margin: 3px 0 5px !important; padding: 3px 6px !important; border: 1px solid #c1cedd !important; background: #fff !important; }
+  .purpose { padding: 2px 1px !important; color: #172b45 !important; font-size: 10px !important; }
+  .purpose-line { gap: 8px 12px !important; }
+  .purpose input[type="checkbox"], .check input[type="checkbox"] { width: 12px !important; height: 12px !important; accent-color: #173b67 !important; }
+  .row { padding: 3px 0 !important; gap: 5px !important; border-bottom: 1px solid #dbe3ec !important; break-inside: avoid !important; }
+  .num {
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    width: 19px !important; height: 19px !important; padding: 0 !important; margin-top: 1px !important;
+    border: 1px solid #b4c5d8 !important; border-radius: 3px !important; background: #edf3f9 !important;
+    color: #173b67 !important; font-size: 9px !important; font-weight: 800 !important;
+  }
+  .fields { gap: 3px 10px !important; }
+  .f { gap: 4px !important; }
+  .f > label, .sub { color: #43546a !important; font-size: 9.5px !important; line-height: 1.15 !important; }
+  .f > label { white-space: normal !important; }
+  input[type="text"], input[type="tel"], input[type="date"], textarea,
+  .f input, .f textarea, .dval input, .dval textarea, .purpose .lab input[type="text"] {
+    color: #172b45 !important; background: #fff !important; border: 0 !important;
+    border-bottom: 1px solid #9aaabd !important; border-radius: 0 !important; box-shadow: none !important;
+    font-family: Arial, "Helvetica Neue", sans-serif !important; font-size: 10px !important;
+    padding: 2px 3px !important; min-height: 17px !important; height: 18px !important;
+  }
+  .f.span textarea, textarea {
+    background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 16px, #d8e0e9 16px, #d8e0e9 17px) !important;
+    line-height: 17px !important; overflow: hidden !important; resize: none !important;
+  }
+  .f.span textarea { height: auto !important; min-height: 26px !important; border-bottom: 1px solid #9aaabd !important; }
+  input[type="date"].empty::-webkit-datetime-edit, input::placeholder, textarea::placeholder { color: transparent !important; }
+  input[type="date"]::-webkit-calendar-picker-indicator { display: none !important; }
+  .dep-table { margin-top: 4px !important; border: 1px solid #8096b0 !important; border-radius: 0 !important; overflow: visible !important; break-inside: avoid !important; }
+  .dep-title { padding: 4px !important; border-bottom: 1px solid #8096b0 !important; background: #edf3f9 !important; color: #173b67 !important; font-size: 10px !important; font-weight: 800 !important; text-align: center !important; }
+  .dep-table .dep-grid { gap: 0 !important; }
+  .dhead { padding: 3px !important; color: #173b67 !important; background: #f6f8fb !important; border-bottom: 1px solid #ccd6e2 !important; font-size: 9.5px !important; }
+  .dlab { padding: 3px 4px !important; color: #43546a !important; background: #f6f8fb !important; border-color: #d5dee8 !important; font-size: 9px !important; }
+  .dval { border-color: #d5dee8 !important; }
+  .dval input, .dval textarea { background: #fff !important; min-height: 18px !important; height: 18px !important; }
+  .drel { padding: 3px 5px !important; gap: 4px 12px !important; }
+  .statement {
+    margin: 5px 0 !important; padding: 6px 8px !important; border: 1px solid #b7c8dc !important;
+    border-left: 3px solid #274f7f !important; border-radius: 0 !important; background: #f7f9fc !important;
+    color: #172b45 !important; font-size: 9.5px !important; line-height: 1.25 !important; break-inside: avoid !important;
+  }
+  .statement b { color: #173b67 !important; }
+  .statement .agree { margin-top: 3px !important; }
+  .sign-wrap { margin-top: 5px !important; gap: 10px !important; break-inside: avoid !important; }
+  .sign-wrap .sub { color: #173b67 !important; font-weight: 700 !important; }
+  .sig, .thumb { height: 48px !important; border: 1px solid #9aacc0 !important; border-radius: 0 !important; background: #fff !important; }
+  .thumb { border-style: dashed !important; }
+  .sig-note { color: #43546a !important; font-size: 9px !important; }
+  .office {
+    display: grid !important; grid-template-columns: 1fr 1fr !important; margin-top: 5px !important; padding: 0 !important;
+    border: 1px solid #8096b0 !important; background: #fff !important; color: #172b45 !important; break-inside: avoid !important;
+  }
+  .office-h { grid-column: 1 / -1 !important; padding: 4px !important; border-bottom: 1px solid #8096b0 !important; background: #edf3f9 !important; color: #173b67 !important; font-size: 9px !important; letter-spacing: .5px !important; }
+  .office-cell { min-height: 29px !important; padding: 5px 7px !important; color: #172b45 !important; font-size: 9.5px !important; }
+  .office-cell + .office-cell { border-left: 1px solid #d5dee8 !important; }
+  .err, .actions, .toast, .privacy, .linkbtn, .hide-print { display: none !important; }
+  .req::after { content: "" !important; }
+}
