@@ -297,7 +297,9 @@ function fitPage() {
   z = Math.floor(z * 1000) / 1000;
   page.style.zoom = z;
   growAll();
-  page.style.minHeight = (PAGE_H / z) + "px";
+  // Only reserve the full A4 height when the content needs scaling down.
+  // If the content is shorter, don't stretch the page and create a blank gap before office-use.
+  page.style.minHeight = z < 1 ? (PAGE_H / z) + "px" : "";
   sc.style.zoom = keep;
 }
 var fitTimer;
