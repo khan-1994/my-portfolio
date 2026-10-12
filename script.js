@@ -263,9 +263,10 @@ function isMobile() { return document.documentElement.classList.contains("mob");
 function setMode() { document.documentElement.classList.toggle("mob", window.matchMedia("(max-width: 700px), (pointer: coarse) and (max-width: 950px)").matches); }
 setMode();
 function fitScreen() {
-  if (isMobile()) { $("scale").style.zoom = 1; return; }
-  var w = document.documentElement.clientWidth - 16;
-  $("scale").style.zoom = Math.min(1, w / 794) * USER_Z;
+  // The filling interface uses the available screen width; A4 sizing is print-only.
+  var sc = $("scale");
+  if (!sc) return;
+  sc.style.zoom = 1;
 }
 function growOne(t) {
   t.style.height = "auto";
@@ -274,16 +275,29 @@ function growOne(t) {
 function growAll() { document.querySelectorAll("textarea").forEach(growOne); }
 function fitPage() {
   var sc = $("scale"), page = $("page");
-  if (isMobile()) { page.style.zoom = 1; page.style.minHeight = ""; growAll(); return; }
+  if (!sc || !page) { growAll(); return; }
+
+  // Never shrink the on-screen form to fit a printed page.
+  if (!document.documentElement.classList.contains("printing")) {
+    sc.style.zoom = 1;
+    page.style.zoom = 1;
+    page.style.minHeight = "";
+    growAll();
+    return;
+  }
+
+  // During printing only, fit the application to a single A4 page where possible.
   var keep = sc.style.zoom;
-  sc.style.zoom = 1; page.style.zoom = 1; page.style.minHeight = "";
+  sc.style.zoom = 1;
+  page.style.zoom = 1;
+  page.style.minHeight = "";
   growAll();
   var h = page.offsetHeight;
   var z = h > PAGE_H ? Math.max(0.6, PAGE_H / h) : 1;
   z = Math.floor(z * 1000) / 1000;
   page.style.zoom = z;
-  growAll(); // text re-wraps at the final width
-  page.style.minHeight = (PAGE_H / z) + "px"; // frame fills the whole A4 sheet
+  growAll();
+  page.style.minHeight = (PAGE_H / z) + "px";
   sc.style.zoom = keep;
 }
 var fitTimer;
@@ -305,11 +319,18 @@ function markDates() {
 }
 window.addEventListener("beforeprint", function () {
   markDates(); // blank dates must print as blank lines, not "mm/dd/yyyy"
-  // always print the A4 layout, even from a phone
+  // Use the compact A4 stylesheet only while the browser is printing.
+  document.documentElement.classList.add("printing");
   document.documentElement.classList.remove("mob");
+  fitScreen();
   fitPage();
 });
-window.addEventListener("afterprint", function () { setMode(); fitScreen(); fitPage(); });
+window.addEventListener("afterprint", function () {
+  document.documentElement.classList.remove("printing");
+  setMode();
+  fitScreen();
+  fitPage();
+});
 updateAddr(); updatePassport();
 fitScreen(); fitPage();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPage);
