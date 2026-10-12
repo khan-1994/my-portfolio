@@ -290,6 +290,7 @@ document.getElementById("appForm").addEventListener("change", function (e) {
   if (t.name && /_rel$/.test(t.name)) {
     var group = t.closest(".drel");
     group.classList.remove("bad-rel");
+    setGroupError(group, "depErr", false);
     group.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
       cb.removeAttribute("aria-invalid");
       syncDescribedBy(cb, "depErr", false);
@@ -353,6 +354,9 @@ $("btnClear").addEventListener("click", function () {
   });
   addrCount = 0; updateAddr(); updatePassport();
   $("depErr").style.display = "none";
+  $("purposeErr").style.display = "none";
+  $("agreeErr").style.display = "none";
+  document.querySelectorAll(".drel").forEach(function (group) { setGroupError(group, "depErr", false); });
   document.querySelectorAll(".bad-rel").forEach(function (e) { e.classList.remove("bad-rel"); });
   fitPage();
   toast("Form cleared.");
