@@ -245,7 +245,9 @@ function validate() {
   checks.forEach(function (c) { if (setBad(c[0], c[1])) { bad.push(c[0]); if (/^d[12]_/.test(c[0])) depIds.push(c[0]); } });
   for (var j = 1; j <= 2; j++) {
     var ok = !!document.querySelector('input[name="d' + j + '_rel"]:checked');
-    $("d" + j + "_relbox").classList.toggle("bad-rel", !ok);
+    var relGroup = $("d" + j + "_relbox");
+    relGroup.classList.toggle("bad-rel", !ok);
+    setGroupError(relGroup, "depErr", !ok);
     if (!ok) { bad.push("d" + j + "_relbox"); depIds.push("rel" + j); }
   }
   $("depErr").style.display = depIds.length ? "block" : "none";
