@@ -187,7 +187,7 @@ function toast(msg) {
 // Validation and accessible error associations
 function syncDescribedBy(el, id, add) {
   if (!el) return;
-  var ids = (el.getAttribute("aria-describedby") || "").split(/\\s+/).filter(Boolean);
+  var ids = (el.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
   var index = ids.indexOf(id);
   if (add && index === -1) ids.push(id);
   if (!add && index !== -1) ids.splice(index, 1);
