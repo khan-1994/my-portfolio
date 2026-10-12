@@ -791,3 +791,112 @@ html.mob .actions { display: grid; grid-template-columns: 1fr 1fr; margin-top: 8
   .dlab { font-size: 14px; }
   .statement { font-size: 15px; }
 }
+
+
+/* ===== Large, comfortable desktop filling interface; A4 remains print-only ===== */
+@media screen and (min-width: 761px) {
+  body { overflow-x: hidden; }
+  .wrap {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 28px clamp(20px, 3vw, 44px) 110px;
+  }
+  #scale { width: 100%; zoom: 1 !important; }
+  .card {
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: clamp(18px, 2.4vw, 36px);
+    background: #fff;
+    border: 1px solid #dbe3ee;
+    border-radius: 18px;
+    box-shadow: 0 18px 55px rgba(24, 48, 84, .12);
+  }
+  .page {
+    display: block !important;
+    width: 100%;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0;
+    padding: clamp(18px, 2.2vw, 32px);
+    border: 1px solid #d5deea;
+    border-radius: 13px;
+    overflow: visible !important;
+    zoom: 1 !important;
+    background: #fff;
+  }
+  h1 {
+    font-size: clamp(26px, 2.25vw, 34px);
+    line-height: 1.25;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  h2 { font-size: 17px; margin: 24px 0 12px; padding: 10px 14px; }
+  .top { gap: 28px; }
+  .addr, .subject { font-size: 17px; line-height: 1.5; }
+  .intro { font-size: 16px; line-height: 1.55; }
+  .photo { width: 122px; height: 152px; }
+  .purposes { gap: 9px; margin: 12px 0 20px; }
+  .purpose, .check { font-size: 16.5px; }
+  .purpose-line { gap: 12px 24px; }
+  .row {
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 14px;
+    padding: 17px 0;
+  }
+  .num {
+    width: 34px; height: 34px; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 9px; background: #edf4ff;
+    font-size: 15px;
+  }
+  .fields, .fields.two, .fields.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 24px; }
+  .fields.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 20px; }
+  .fields.c4 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, .8fr) 104px; gap: 16px; }
+  .f { display: flex; flex-direction: column; align-items: stretch; gap: 7px; min-width: 0; }
+  .f > label, .sub { font-size: 15.5px; line-height: 1.4; white-space: normal; }
+  .f input, .f textarea, input[type="text"], input[type="tel"], input[type="date"], textarea {
+    width: 100%; max-width: 100%; min-width: 0;
+    min-height: 48px; height: auto;
+    font-size: 17px; line-height: 1.4; padding: 11px 13px;
+    border-radius: 8px;
+  }
+  .f.span textarea, textarea { min-height: 100px; resize: vertical; background-image: none; }
+  .f.span textarea { margin-top: 0; }
+  input[type="checkbox"], input[type="radio"] { width: 20px; height: 20px; }
+  .check { gap: 10px; }
+  .dep-table { margin-top: 12px; border-radius: 10px; overflow: hidden; }
+  .dep-title { font-size: 15px; padding: 12px; }
+  .dhead { padding: 10px; font-size: 14.5px; }
+  .dlab { padding: 9px; font-size: 14px; white-space: normal; }
+  .dval input, .dval textarea { min-height: 46px; height: auto; font-size: 16px; padding: 10px; }
+  .dval textarea { min-height: 86px; }
+  .drel { padding: 12px; gap: 12px 18px; }
+  .statement { padding: 16px 18px; font-size: 15px; line-height: 1.6; margin: 18px 0; }
+  .sign-wrap { gap: 22px; margin-top: 24px; }
+  .sig, .thumb { height: 112px; }
+  .office { margin-top: 20px; }
+  .office-h { padding: 8px; font-size: 12px; }
+  .office-cell { min-height: 54px; padding: 12px; font-size: 14px; }
+  .privacy { width: auto; min-width: 0; margin: 18px 4px 0; }
+}
+
+@media screen and (min-width: 761px) and (max-width: 1050px) {
+  .fields.c3, .fields.c4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .top { gap: 18px; }
+}
+
+/* Screen styles must not affect the A4 output. This print wrapper restores the page-sized frame. */
+@media print {
+  @page { size: A4 portrait; margin: 6mm; }
+  body { overflow: visible !important; background: #fff !important; }
+  .wrap { width: auto !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
+  #scale { width: auto !important; max-width: none !important; zoom: 1 !important; }
+  .card {
+    width: 748px !important; max-width: 748px !important; min-height: 0 !important;
+    margin: 0 !important; padding: 0 !important; border: 0 !important;
+    border-radius: 0 !important; box-shadow: none !important; background: #fff !important;
+  }
+  .page { width: 100% !important; border: 3px double #000 !important; border-radius: 0 !important; padding: 7px 9px !important; overflow: visible !important; }
+}
