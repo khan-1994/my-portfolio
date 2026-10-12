@@ -734,8 +734,8 @@ html.mob .actions { display: grid; grid-template-columns: 1fr 1fr; margin-top: 8
     -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
   }
   .wrap { width: auto !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
-  .scale { width: auto !important; zoom: 1 !important; }
-  .sheet {
+  #scale { width: auto !important; zoom: 1 !important; }
+  .card {
     width: 748px !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important;
     border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
     background: #fff !important; color: #172b45 !important;
