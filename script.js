@@ -23,6 +23,11 @@ var val = function (id) { return ($(id).value || "").trim(); };
       '<label class="check"><input type="checkbox" name="d' + i + '_rel" value="Family Member"> Family Member</label></div>';
   }
   $("deps").innerHTML = html;
+  document.querySelectorAll(".drel").forEach(function (group, index) {
+    group.setAttribute("role", "group");
+    group.setAttribute("aria-label", "Deponent " + (index + 1) + " relationship");
+    group.setAttribute("aria-describedby", "depErr");
+  });
   // only one of Neighbor / Family Member per deponent
   document.querySelectorAll('.drel input[type=checkbox]').forEach(function (cb) {
     cb.addEventListener("change", function () {
@@ -179,11 +184,41 @@ function toast(msg) {
   clearTimeout(tt); tt = setTimeout(function () { t.classList.remove("show"); }, 3200);
 }
 
-// Validation
+// Validation and accessible error associations
+function syncDescribedBy(el, id, add) {
+  if (!el) return;
+  var ids = (el.getAttribute("aria-describedby") || "").split(/\\s+/).filter(Boolean);
+  var index = ids.indexOf(id);
+  if (add && index === -1) ids.push(id);
+  if (!add && index !== -1) ids.splice(index, 1);
+  if (ids.length) el.setAttribute("aria-describedby", ids.join(" "));
+  else el.removeAttribute("aria-describedby");
+}
 function setBad(id, bad) {
-  var el = $(id); el.classList.toggle("invalid", bad);
-  var f = el.closest(".f"); if (f) f.classList.toggle("bad", bad);
+  var el = $(id);
+  if (!el) return false;
+  el.classList.toggle("invalid", bad);
+  if (bad) el.setAttribute("aria-invalid", "true");
+  else el.removeAttribute("aria-invalid");
+
+  var f = el.closest(".f");
+  if (f) {
+    f.classList.toggle("bad", bad);
+    var err = f.querySelector(".err");
+    if (err) {
+      if (!err.id) err.id = id + "Err";
+      syncDescribedBy(el, err.id, bad);
+    }
+  } else if (/^d[12]_/.test(id)) {
+    syncDescribedBy(el, "depErr", bad);
+  }
   return bad;
+}
+function setGroupError(group, errorId, bad) {
+  if (!group) return;
+  if (bad) group.setAttribute("aria-invalid", "true");
+  else group.removeAttribute("aria-invalid");
+  syncDescribedBy(group, errorId, bad);
 }
 function validate() {
   var bad = [];
@@ -214,14 +249,35 @@ function validate() {
     if (!ok) { bad.push("d" + j + "_relbox"); depIds.push("rel" + j); }
   }
   $("depErr").style.display = depIds.length ? "block" : "none";
+  $("depErr").setAttribute("role", "alert");
+  $("depErr").setAttribute("aria-live", "assertive");
+
   var anyPurpose = ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"].some(function (id) { return $(id).checked; });
   $("purposeErr").style.display = anyPurpose ? "none" : "block";
+  $("purposeErr").setAttribute("role", "alert");
+  $("purposeErr").setAttribute("aria-live", "assertive");
+  setGroupError($("purposes"), "purposeErr", !anyPurpose);
   if (!anyPurpose) bad.push("purposes");
-  $("agreeErr").style.display = $("agree").checked ? "none" : "block";
-  if (!$("agree").checked) bad.push("agree");
+
+  var agreed = $("agree").checked;
+  $("agreeErr").style.display = agreed ? "none" : "block";
+  $("agreeErr").setAttribute("role", "alert");
+  $("agreeErr").setAttribute("aria-live", "assertive");
+  if (agreed) $("agree").removeAttribute("aria-invalid");
+  else $("agree").setAttribute("aria-invalid", "true");
+  syncDescribedBy($("agree"), "agreeErr", !agreed);
+  if (!agreed) bad.push("agree");
+
   if (bad.length) {
-    var first = bad[0] === "purposes" ? $("purposes") : $(bad[0]);
-    first.scrollIntoView({ behavior: "smooth", block: "center" });
+    var firstId = bad[0];
+    var first = firstId === "purposes" ? $("purposes") : firstId === "agree" ? $("agree") : $(firstId);
+    var focusTarget = first;
+    if (firstId === "purposes") focusTarget = $("p_visa");
+    else if (firstId === "d1_relbox" || firstId === "d2_relbox") focusTarget = first.querySelector("input[type=checkbox]");
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (focusTarget && typeof focusTarget.focus === "function") {
+      try { focusTarget.focus({ preventScroll: true }); } catch (e) { focusTarget.focus(); }
+    }
     toast("Please fix the highlighted fields.");
     return false;
   }
@@ -229,12 +285,40 @@ function validate() {
 }
 document.getElementById("appForm").addEventListener("change", function (e) {
   var t = e.target;
-  if (t.name && /_rel$/.test(t.name)) t.closest(".drel").classList.remove("bad-rel");
+  if (t.name && /_rel$/.test(t.name)) {
+    var group = t.closest(".drel");
+    group.classList.remove("bad-rel");
+    group.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+      cb.removeAttribute("aria-invalid");
+      syncDescribedBy(cb, "depErr", false);
+    });
+  }
+  if (/^p_(visa|imm|gov|pvt|oth)$/.test(t.id)) {
+    var chosen = ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"].some(function (id) { return $(id).checked; });
+    if (chosen) {
+      $("purposeErr").style.display = "none";
+      setGroupError($("purposes"), "purposeErr", false);
+    }
+  }
 });
 document.getElementById("appForm").addEventListener("input", function (e) {
   if (e.target.classList.contains("invalid")) setBad(e.target.id, false);
 });
-$("agree").addEventListener("change", function () { if (this.checked) $("agreeErr").style.display = "none"; });
+$("agree").addEventListener("change", function () {
+  if (this.checked) {
+    $("agreeErr").style.display = "none";
+    this.removeAttribute("aria-invalid");
+    syncDescribedBy(this, "agreeErr", false);
+  }
+});
+// Give visible field errors an announcement role when validation reveals them.
+document.querySelectorAll(".f .err").forEach(function (err) {
+  err.setAttribute("role", "alert");
+  err.setAttribute("aria-live", "assertive");
+});
+$("purposes").setAttribute("role", "group");
+$("purposes").setAttribute("aria-label", "Application purpose (choose one)");
+$("purposes").setAttribute("aria-describedby", "purposeErr");
 
 // Actions
 $("btnPrint").addEventListener("click", function () {
@@ -247,8 +331,24 @@ $("btnClear").addEventListener("click", function () {
   var img = $("photoBox").querySelector("img"); if (img) img.remove(); $("photoHint").style.display = "";
   ["a5_y", "a6_y", "a7_y"].forEach(function (id) { $(id).value = ""; });
   $("sigName").textContent = "";
-  document.querySelectorAll(".invalid").forEach(function (e) { e.classList.remove("invalid"); });
+  document.querySelectorAll(".invalid").forEach(function (e) {
+    e.classList.remove("invalid");
+    e.removeAttribute("aria-invalid");
+    ["purposeErr", "agreeErr", "depErr"].forEach(function (id) { syncDescribedBy(e, id, false); });
+    var f = e.closest(".f");
+    if (f) {
+      var err = f.querySelector(".err");
+      if (err && err.id) syncDescribedBy(e, err.id, false);
+    }
+  });
   document.querySelectorAll(".bad").forEach(function (e) { e.classList.remove("bad"); });
+  setGroupError($("purposes"), "purposeErr", false);
+  $("agree").removeAttribute("aria-invalid");
+  syncDescribedBy($("agree"), "agreeErr", false);
+  document.querySelectorAll(".drel input").forEach(function (e) {
+    e.removeAttribute("aria-invalid");
+    syncDescribedBy(e, "depErr", false);
+  });
   addrCount = 0; updateAddr(); updatePassport();
   $("depErr").style.display = "none";
   document.querySelectorAll(".bad-rel").forEach(function (e) { e.classList.remove("bad-rel"); });
