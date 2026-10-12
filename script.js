@@ -227,11 +227,11 @@ function validate() {
   }
   return true;
 }
-document.getElementById("form").addEventListener("change", function (e) {
+document.getElementById("appForm").addEventListener("change", function (e) {
   var t = e.target;
   if (t.name && /_rel$/.test(t.name)) t.closest(".drel").classList.remove("bad-rel");
 });
-document.getElementById("form").addEventListener("input", function (e) {
+document.getElementById("appForm").addEventListener("input", function (e) {
   if (e.target.classList.contains("invalid")) setBad(e.target.id, false);
 });
 $("agree").addEventListener("change", function () { if (this.checked) $("agreeErr").style.display = "none"; });
@@ -243,7 +243,7 @@ $("btnPrint").addEventListener("click", function () {
 });
 $("btnClear").addEventListener("click", function () {
   if (!confirm("Clear everything you have entered?")) return;
-  document.getElementById("form").reset();
+  document.getElementById("appForm").reset();
   var img = $("photoBox").querySelector("img"); if (img) img.remove(); $("photoHint").style.display = "";
   ["a5_y", "a6_y", "a7_y"].forEach(function (id) { $(id).value = ""; });
   $("sigName").textContent = "";
@@ -289,11 +289,11 @@ function fitPage() {
 var fitTimer;
 function queueFit() { clearTimeout(fitTimer); fitTimer = setTimeout(fitPage, 120); }
 // Single-line inputs never change the page height, so only textareas need work while typing.
-document.getElementById("form").addEventListener("input", function (e) {
+document.getElementById("appForm").addEventListener("input", function (e) {
   if (e.target.tagName !== "TEXTAREA") return;
   if (isMobile()) growOne(e.target); else queueFit();
 });
-document.getElementById("form").addEventListener("change", queueFit);
+document.getElementById("appForm").addEventListener("change", queueFit);
 // Phones fire "resize" when the keyboard opens; only react when the width really changes.
 var lastW = window.innerWidth;
 window.addEventListener("resize", function () {
