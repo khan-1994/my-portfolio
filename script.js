@@ -288,6 +288,12 @@ function validate(step) {
       var relGroup = $("d" + j + "_relbox");
       relGroup.classList.toggle("bad-rel", !ok);
       setGroupError(relGroup, "depErr", !ok);
+      // The group itself is not focusable, so describe the focused relationship controls too.
+      relGroup.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+        if (!ok) cb.setAttribute("aria-invalid", "true");
+        else cb.removeAttribute("aria-invalid");
+        syncDescribedBy(cb, "depErr", !ok);
+      });
       if (!ok) { bad.push("d" + j + "_relbox"); depIds.push("rel" + j); }
     }
     $("depErr").style.display = depIds.length ? "block" : "none";
@@ -432,6 +438,7 @@ $("btnClear").addEventListener("click", function () {
       var err = f.querySelector(".err");
       if (err && err.id) syncDescribedBy(e, err.id, false);
     }
+    if (/^p_(imm|gov|pvt|oth)_t$/.test(e.id)) syncDescribedBy(e, e.id + "Err", false);
   });
   document.querySelectorAll(".bad").forEach(function (e) { e.classList.remove("bad"); });
   setGroupError($("purposes"), "purposeErr", false);
