@@ -16,8 +16,18 @@
 <div id="scale">
 <div class="card">
 <form id="appForm" novalidate>
+<div class="wizard-status" aria-live="polite">
+  <div class="wizard-status-heading"><strong id="stepCounter">Step 1 of 3</strong><span id="stepName">Purpose &amp; Personal Information</span></div>
+  <div class="wizard-progress" role="progressbar" aria-label="Form progress" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1"><span id="stepProgress"></span></div>
+  <ol class="step-list" aria-label="Application steps">
+    <li data-step-indicator="1" aria-current="step"><span>1</span> Personal</li>
+    <li data-step-indicator="2"><span>2</span> Address &amp; Contact</li>
+    <li data-step-indicator="3"><span>3</span> Witnesses</li>
+  </ol>
+</div>
 <div class="page" id="page">
-  <h1>Application for Police Clearance Certificate</h1>
+<div class="form-step" id="step1" data-step="1">
+  <h1 tabindex="-1">Application for Police Clearance Certificate</h1>
 
   <div class="top">
     <div class="top-text">
@@ -40,11 +50,11 @@
   <div class="purposes" id="purposes">
     <div class="purpose-line">
       <div class="purpose"><input type="checkbox" id="p_visa"><div class="lab"><label for="p_visa">Visa Issuing Authority</label></div></div>
-      <div class="purpose"><input type="checkbox" id="p_imm"><div class="lab"><label for="p_imm">Immigration Authorities</label><input type="text" id="p_imm_t" aria-label="Name of country" placeholder="Country name"></div></div>
+      <div class="purpose"><input type="checkbox" id="p_imm"><div class="lab"><label for="p_imm">Immigration Authorities</label><input type="text" id="p_imm_t" aria-label="Name of country" placeholder="Country name"><span class="err purpose-field-err" id="p_imm_tErr">Enter the country name.</span></div></div>
     </div>
-    <div class="purpose"><input type="checkbox" id="p_gov"><div class="lab"><label for="p_gov">Government employment in the department</label><input type="text" id="p_gov_t" aria-label="Department name"></div></div>
-    <div class="purpose"><input type="checkbox" id="p_pvt"><div class="lab"><label for="p_pvt">Private employment in the company / factory</label><input type="text" id="p_pvt_t" aria-label="Company or factory name"></div></div>
-    <div class="purpose"><input type="checkbox" id="p_oth"><div class="lab"><label for="p_oth">Any other authority or purpose (describe here)</label><input type="text" id="p_oth_t" aria-label="Other purpose"></div></div>
+    <div class="purpose"><input type="checkbox" id="p_gov"><div class="lab"><label for="p_gov">Government employment in the department</label><input type="text" id="p_gov_t" aria-label="Department name"><span class="err purpose-field-err" id="p_gov_tErr">Enter the department name.</span></div></div>
+    <div class="purpose"><input type="checkbox" id="p_pvt"><div class="lab"><label for="p_pvt">Private employment in the company / factory</label><input type="text" id="p_pvt_t" aria-label="Company or factory name"><span class="err purpose-field-err" id="p_pvt_tErr">Enter the company or factory name.</span></div></div>
+    <div class="purpose"><input type="checkbox" id="p_oth"><div class="lab"><label for="p_oth">Any other authority or purpose (describe here)</label><input type="text" id="p_oth_t" aria-label="Other purpose"><span class="err purpose-field-err" id="p_oth_tErr">Describe the other purpose.</span></div></div>
   </div>
   <div class="err" id="purposeErr" style="display:none;position:static">Please tick one purpose.</div>
 
@@ -82,6 +92,9 @@
     </div>
   </div>
 
+</div>
+<div class="form-step" id="step2" data-step="2" hidden>
+  <h2 class="wizard-only" tabindex="-1">Step 2: Address &amp; Contact Details</h2>
   <div class="row"><div class="num">5.</div>
     <div class="fields c4">
       <div class="f span"><label class="req" for="a5">Address of the District SBA (where the certificate is required)</label><textarea id="a5" rows="1"></textarea><span class="err">Enter your address.</span></div>
@@ -141,6 +154,9 @@
     </div>
   </div>
 
+</div>
+<div class="form-step" id="step3" data-step="3" hidden>
+  <h2 class="wizard-only" tabindex="-1">Step 3: Witnesses &amp; Declaration</h2>
   <div class="row" style="border-bottom:none"><div class="num">12.</div>
     <div>
       <div class="sub" style="font-weight:600">Details of deponents / witnesses from whom police can verify your character and residential address</div>
@@ -173,11 +189,14 @@
   </div>
 
   <div class="office"><div class="office-h">For office use only</div><div class="office-cell"><b>TID No:</b></div><div class="office-cell"><b>DEO Name:</b></div></div>
+</div><!-- /form-step step3 -->
 </div><!-- /page -->
 </form>
 
 <div class="actions">
-  <button type="button" class="btn primary" id="btnPrint">Print / Save as PDF</button>
+  <button type="button" class="btn" id="btnBack" disabled>← Back</button>
+  <button type="button" class="btn primary" id="btnNext">Next →</button>
+  <button type="button" class="btn primary" id="btnPrint" hidden>Print / Save as PDF</button>
   <button type="button" class="btn" id="btnClear">Clear form</button>
 </div>
 </div><!-- /card -->
