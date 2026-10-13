@@ -1093,3 +1093,21 @@ html.mob .actions { display: grid; grid-template-columns: 1fr 1fr; margin-top: 8
  .wizard-status, .wizard-only, #btnBack, #btnNext, #btnClear, #btnPrint { display: none !important; }
  .form-step, .form-step[hidden] { display: contents !important; }
 }
+
+
+/* The formal letter text is output-only: it appears after final validation in print/PDF. */
+@media screen {
+  .letter-copy { display: none !important; }
+  .top { justify-content: flex-end; }
+  .wizard-submit-note {
+    margin: 6px 0 12px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+}
+@media print {
+  html:not(.submitted-for-print) .letter-copy { display: none !important; }
+  html.submitted-for-print .letter-copy { display: block !important; }
+  .wizard-submit-note { display: none !important; }
+}
