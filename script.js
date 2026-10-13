@@ -85,18 +85,6 @@ function today() {
 // Name under signature
 $("name").addEventListener("input", function () { $("sigName").textContent = this.value.trim(); });
 
-// Photo
-$("photoInput").addEventListener("change", function () {
-  var f = this.files && this.files[0];
-  if (!f) return;
-  var r = new FileReader();
-  r.onload = function () {
-    var old = $("photoBox").querySelector("img"); if (old) old.remove();
-    var img = new Image(); img.src = r.result; img.alt = "Applicant photo";
-    $("photoBox").appendChild(img); $("photoHint").style.display = "none";
-  };
-  r.readAsDataURL(f);
-});
 
 
 
