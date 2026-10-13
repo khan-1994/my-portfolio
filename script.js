@@ -121,6 +121,8 @@ $("photoInput").addEventListener("change", function () {
         if (error) { error.style.display = "none"; error.hidden = true; }
       } else if (error) error.hidden = false;
     });
+    var visaDetails = $("visaDetails");
+    if (visaDetails) visaDetails.hidden = !$("p_visa").checked;
     updatePassport();
   }
   ids.forEach(function (id) {
