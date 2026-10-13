@@ -1095,7 +1095,9 @@ html.mob .actions { display: grid; grid-template-columns: 1fr 1fr; margin-top: 8
 }
 
 
-/* The formal letter text is output-only: it appears after final validation in print/PDF. */
+/* The formal letter text belongs to Step 1's print layout; it is output-only. */
+.form-step[data-step="1"] #applicationLetter { display: none; }
+
 @media screen {
   .letter-copy { display: none !important; }
   .top { justify-content: flex-end; }
@@ -1107,7 +1109,7 @@ html.mob .actions { display: grid; grid-template-columns: 1fr 1fr; margin-top: 8
   }
 }
 @media print {
-  html:not(.submitted-for-print) .letter-copy { display: none !important; }
-  html.submitted-for-print .letter-copy { display: block !important; }
+  html:not(.submitted-for-print) .form-step[data-step="1"] #applicationLetter { display: none !important; }
+  html.submitted-for-print .form-step[data-step="1"] #applicationLetter { display: block !important; }
   .wizard-submit-note { display: none !important; }
 }
