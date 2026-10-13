@@ -304,8 +304,30 @@ document.getElementById("appForm").addEventListener("change", function (e) {
     }
   }
 });
+function fieldIsValid(id) {
+  var value = val(id);
+  switch (id) {
+    case "name": return value.length >= 3;
+    case "caste": return value.length >= 2;
+    case "father": return value.length >= 3;
+    case "dob": return !!value && value <= today() && value >= "1900-01-01";
+    case "cnic": return digits(value).length === 13;
+    case "cnic_issue": return !!value && value <= today() && value >= "1900-01-01";
+    case "cnic_exp": return !!value && value <= "2100-12-31" && (!val("cnic_issue") || value > val("cnic_issue"));
+    case "a5": return value.length >= 5;
+    case "mobile": return digits(value).length === 11 && value.slice(0, 2) === "03";
+  }
+  if (/^d[12]_name$/.test(id) || /^d[12]_father$/.test(id)) return value.length >= 3;
+  if (/^d[12]_cnic$/.test(id)) return digits(value).length === 13;
+  if (/^d[12]_mob$/.test(id)) return digits(value).length === 11 && value.slice(0, 2) === "03";
+  if (/^d[12]_addr$/.test(id)) return value.length >= 5;
+  return false;
+}
 document.getElementById("appForm").addEventListener("input", function (e) {
-  if (e.target.classList.contains("invalid")) setBad(e.target.id, false);
+  var target = e.target;
+  if (target.classList.contains("invalid") && fieldIsValid(target.id)) {
+    setBad(target.id, false);
+  }
 });
 $("agree").addEventListener("change", function () {
   if (this.checked) {
