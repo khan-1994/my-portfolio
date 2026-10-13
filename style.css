@@ -1068,7 +1068,7 @@ html.mob .actions { display: grid; grid-template-columns: 1fr 1fr; margin-top: 8
 .wizard-status-heading span { color: var(--muted); font-size: 14px; }
 .wizard-progress { height: 7px; overflow: hidden; border-radius: 99px; background: var(--soft); margin-bottom: 10px; }
 .wizard-progress span { display: block; width: 33.333%; height: 100%; background: var(--accent); border-radius: inherit; transition: width .2s ease; }
-.step-list { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 0; margin: 0; }
+ .step-list { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 0; margin: 0; }
 .step-list li { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--muted); font-size: 12px; }
 .step-list li span { display: inline-flex; flex: 0 0 24px; width: 24px; height: 24px; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 50%; font-weight: 700; }
 .step-list li.current { color: var(--accent); font-weight: 700; }
@@ -1112,4 +1112,22 @@ html.mob .actions { display: grid; grid-template-columns: 1fr 1fr; margin-top: 8
   html:not(.submitted-for-print) .form-step[data-step="1"] #applicationLetter { display: none !important; }
   html.submitted-for-print .form-step[data-step="1"] #applicationLetter { display: block !important; }
   .wizard-submit-note { display: none !important; }
+}
+
+
+/* Purpose choices reveal only the detail needed for that specific choice. */
+.purpose:not(.selected) .lab input[type="text"],
+.purpose:not(.selected) .purpose-field-err { display: none !important; }
+.purpose.selected { border-radius: 7px; }
+.purpose.selected .lab { flex-wrap: wrap; }
+.purpose .lab input[type="text"][hidden],
+.purpose .purpose-field-err[hidden] { display: none !important; }
+.form-step[data-step="1"] .letter-copy { display: none; }
+@media print {
+  html.submitted-for-print .form-step[data-step="1"] #applicationLetter { display: block !important; }
+  .form-step[data-step="1"] #applicationLetter { display: none; }
+}
+@media screen and (max-width: 600px) {
+  .step-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .step-list li { font-size: 10px; }
 }
