@@ -440,7 +440,7 @@ $("btnPrint").addEventListener("click", function () {
 $("btnClear").addEventListener("click", function () {
   if (!confirm("Clear everything you have entered?")) return;
   document.getElementById("appForm").reset();
-  var img = $("photoBox").querySelector("img"); if (img) img.remove(); $("photoHint").style.display = "";
+
   ["a5_y", "a6_y", "a7_y"].forEach(function (id) { $(id).value = ""; });
   $("sigName").textContent = "";
   document.querySelectorAll(".invalid").forEach(function (e) {
