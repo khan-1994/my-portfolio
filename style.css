@@ -1210,3 +1210,6 @@ button.btn.primary { box-shadow:0 4px 12px rgba(23,63,120,.16); }
   #step2 .photo { float:right !important; margin:0 0 6mm 6mm !important; width:28mm !important; height:35mm !important; }
   #step2 > h2 { margin-top:3mm !important; }
 }
+
+/* Passport photo upload has been removed from the application form. */
+#step2 .photo, #step2 .top { display:none !important; }
