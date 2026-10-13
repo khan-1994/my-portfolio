@@ -50,6 +50,16 @@
     <div class="purpose"><input type="checkbox" id="p_pvt"><div class="lab"><label for="p_pvt">Private employment in the company / factory</label><input type="text" id="p_pvt_t" aria-label="Company or factory name"><span class="err purpose-field-err" id="p_pvt_tErr" role="alert" aria-live="assertive">Enter the company or factory name.</span></div></div>
     <div class="purpose"><input type="checkbox" id="p_oth"><div class="lab"><label for="p_oth">Any other authority or purpose (describe here)</label><input type="text" id="p_oth_t" aria-label="Other purpose"><span class="err purpose-field-err" id="p_oth_tErr" role="alert" aria-live="assertive">Describe the other purpose.</span></div></div>
   </div>
+  <section class="visa-details" id="visaDetails" hidden aria-labelledby="visaDetailsTitle">
+    <div class="visa-details-heading"><span class="visa-icon" aria-hidden="true">✈</span><div><h3 id="visaDetailsTitle">Visa Application Details</h3><p>Provide details requested by the visa-issuing authority.</p></div></div>
+    <div class="visa-fields">
+      <div class="f"><label for="visa_country">Destination country</label><input type="text" id="visa_country" autocomplete="country-name" placeholder="e.g. United Arab Emirates"></div>
+      <div class="f"><label for="visa_type">Visa category</label><select id="visa_type"><option value="">Select visa category</option><option>Visit / Tourist</option><option>Work / Employment</option><option>Student</option><option>Residence / Family</option><option>Business</option><option>Other</option></select></div>
+      <div class="f"><label for="visa_authority">Embassy / Consulate / Visa authority</label><input type="text" id="visa_authority" placeholder="Authority name (if known)"></div>
+      <div class="f"><label for="visa_reason">Travel purpose</label><input type="text" id="visa_reason" placeholder="e.g. employment, study, family visit"></div>
+    </div>
+    <p class="visa-help">Passport information will be requested in the Personal Information section.</p>
+  </section>
   <div class="err" id="purposeErr" style="display:none;position:static">Please tick one purpose.</div>
 
 
