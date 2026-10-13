@@ -17,20 +17,19 @@
 <div class="card">
 <form id="appForm" novalidate>
 <div class="wizard-status" aria-live="polite">
-  <div class="wizard-status-heading"><strong id="stepCounter">Step 1 of 3</strong><span id="stepName">Purpose &amp; Personal Information</span></div>
-  <div class="wizard-progress" role="progressbar" aria-label="Form progress" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1"><span id="stepProgress"></span></div>
+  <div class="wizard-status-heading"><strong id="stepCounter">Step 1 of 4</strong><span id="stepName">Application Purpose</span></div>
+  <div class="wizard-progress" role="progressbar" aria-label="Form progress" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1"><span id="stepProgress"></span></div>
   <ol class="step-list" aria-label="Application steps">
-    <li data-step-indicator="1" aria-current="step"><span>1</span> Purpose &amp; Personal</li>
-    <li data-step-indicator="2"><span>2</span> Address &amp; Contact</li>
-    <li data-step-indicator="3"><span>3</span> Witnesses</li>
+    <li data-step-indicator="1" aria-current="step"><span>1</span> Purpose</li>
+    <li data-step-indicator="2"><span>2</span> Personal</li>
+    <li data-step-indicator="3"><span>3</span> Address</li>
+    <li data-step-indicator="4"><span>4</span> Witnesses</li>
   </ol>
 </div>
 <div class="page" id="page">
 <div class="form-step" id="step1" data-step="1">
-  <h1 tabindex="-1">Application for Police Clearance Certificate</h1>
-
-  <div class="top">
-    <div class="top-text letter-copy" id="applicationLetter" data-print-section="1">
+  <h2 class="wizard-only" tabindex="-1">Step 1: Application Purpose</h2>
+  <div class="top-text letter-copy" id="applicationLetter" data-print-section="1">
       <p class="addr">
         To,<br>
         <strong>The In-charge / Manager,</strong><br>
@@ -39,11 +38,6 @@
       <p class="subject">Subject: <span>Request for Issuance of Police Clearance Certificate</span></p>
       <p class="intro">I would like to request the issuance of a Police Clearance Certificate, which is required by the authority mentioned below.</p>
     </div>
-    <label class="photo" id="photoBox" title="Add passport-size photo">
-      <span id="photoHint">Tap to add<br>passport-size<br>photo</span>
-      <input type="file" accept="image/*" id="photoInput" aria-label="Upload passport-size photo">
-    </label>
-  </div>
 
   <h2>Tick only one and fill in the blank.</h2>
 
@@ -57,6 +51,17 @@
     <div class="purpose"><input type="checkbox" id="p_oth"><div class="lab"><label for="p_oth">Any other authority or purpose (describe here)</label><input type="text" id="p_oth_t" aria-label="Other purpose"><span class="err purpose-field-err" id="p_oth_tErr" role="alert" aria-live="assertive">Describe the other purpose.</span></div></div>
   </div>
   <div class="err" id="purposeErr" style="display:none;position:static">Please tick one purpose.</div>
+
+
+</div>
+<div class="form-step" id="step2" data-step="2" hidden>
+  <h1 tabindex="-1">Applicant Personal Information</h1>
+  <div class="top">
+    <label class="photo" id="photoBox" title="Add passport-size photo">
+      <span id="photoHint">Tap to add<br>passport-size<br>photo</span>
+      <input type="file" accept="image/*" id="photoInput" aria-label="Upload passport-size photo">
+    </label>
+  </div>
 
   <h2>My particulars are under</h2>
 
@@ -93,8 +98,8 @@
   </div>
 
 </div>
-<div class="form-step" id="step2" data-step="2" hidden>
-  <h2 class="wizard-only" tabindex="-1">Step 2: Address &amp; Contact Details</h2>
+<div class="form-step" id="step3" data-step="3" hidden>
+  <h2 class="wizard-only" tabindex="-1">Step 3: Address &amp; Contact Details</h2>
   <div class="row"><div class="num">5.</div>
     <div class="fields c4">
       <div class="f span"><label class="req" for="a5">Address of the District SBA (where the certificate is required)</label><textarea id="a5" rows="1"></textarea><span class="err">Enter your address.</span></div>
@@ -155,8 +160,8 @@
   </div>
 
 </div>
-<div class="form-step" id="step3" data-step="3" hidden>
-  <h2 class="wizard-only" tabindex="-1">Step 3: Witnesses &amp; Declaration</h2>
+<div class="form-step" id="step4" data-step="4" hidden>
+  <h2 class="wizard-only" tabindex="-1">Step 4: Witnesses &amp; Declaration</h2>
   <p class="wizard-submit-note">After checking all required fields, complete the application to open Print / Save as PDF. Your information is not sent online.</p>
   <div class="row" style="border-bottom:none"><div class="num">12.</div>
     <div>
