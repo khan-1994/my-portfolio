@@ -112,7 +112,7 @@ $("photoInput").addEventListener("change", function () {
       ids.forEach(function (o) {
         if (o === id) return;
         $(o).checked = false;
-        var t = $(o + "_t"); if (t) t.value = "";
+        var t = $(o + "_t"); if (t) { t.value = ""; setBad(t.id, false); }
       });
     });
     var txt = $(id + "_t");
@@ -209,6 +209,10 @@ function setBad(id, bad) {
       if (!err.id) err.id = id + "Err";
       syncDescribedBy(el, err.id, bad);
     }
+  } else if (/^p_(imm|gov|pvt|oth)_t$/.test(id)) {
+    syncDescribedBy(el, id + "Err", bad);
+    var purposeFieldErr = $(id + "Err");
+    if (purposeFieldErr) purposeFieldErr.style.display = bad ? "block" : "none";
   } else if (/^d[12]_/.test(id)) {
     syncDescribedBy(el, "depErr", bad);
   }
@@ -220,7 +224,33 @@ function setGroupError(group, errorId, bad) {
   else group.removeAttribute("aria-invalid");
   syncDescribedBy(group, errorId, bad);
 }
-function validate() {
+var currentStep = 1;
+var stepNames = { 1: "Purpose & Personal Information", 2: "Address & Contact Details", 3: "Witnesses & Declaration" };
+function showStep(step, moveFocus) {
+  currentStep = Math.max(1, Math.min(3, step));
+  document.querySelectorAll(".form-step").forEach(function (panel) {
+    panel.hidden = Number(panel.getAttribute("data-step")) !== currentStep;
+  });
+  $("stepCounter").textContent = "Step " + currentStep + " of 3";
+  $("stepName").textContent = stepNames[currentStep];
+  $("stepProgress").style.width = (currentStep / 3 * 100) + "%";
+  document.querySelector(".wizard-progress").setAttribute("aria-valuenow", String(currentStep));
+  document.querySelectorAll("[data-step-indicator]").forEach(function (item) {
+    var active = Number(item.getAttribute("data-step-indicator")) === currentStep;
+    item.classList.toggle("current", active);
+    if (active) item.setAttribute("aria-current", "step");
+    else item.removeAttribute("aria-current");
+  });
+  $("btnBack").disabled = currentStep === 1;
+  $("btnNext").hidden = currentStep === 3;
+  $("btnPrint").hidden = currentStep !== 3;
+  if (moveFocus) {
+    var panel = $("step" + currentStep), heading = panel && panel.querySelector(".wizard-only, h1");
+    if (heading) { heading.focus(); heading.scrollIntoView({ behavior: "smooth", block: "start" }); }
+  }
+}
+function validate(step) {
+  step = step || currentStep;
   var bad = [];
   var checks = [
     ["name", val("name").length < 3],
@@ -242,35 +272,60 @@ function validate() {
     checks.push([d + "mob", digits(val(d + "mob")).length !== 11 || val(d + "mob").slice(0, 2) !== "03"]);
     checks.push([d + "addr", val(d + "addr").length < 5]);
   }
-  checks.forEach(function (c) { if (setBad(c[0], c[1])) { bad.push(c[0]); if (/^d[12]_/.test(c[0])) depIds.push(c[0]); } });
-  for (var j = 1; j <= 2; j++) {
-    var ok = !!document.querySelector('input[name="d' + j + '_rel"]:checked');
-    var relGroup = $("d" + j + "_relbox");
-    relGroup.classList.toggle("bad-rel", !ok);
-    setGroupError(relGroup, "depErr", !ok);
-    if (!ok) { bad.push("d" + j + "_relbox"); depIds.push("rel" + j); }
-  }
-  $("depErr").style.display = depIds.length ? "block" : "none";
-  $("depErr").setAttribute("role", "alert");
-  $("depErr").setAttribute("aria-live", "assertive");
+  checks = checks.filter(function (c) {
+    if (/^d[12]_/.test(c[0])) return step === 3;
+    if (/^(name|caste|father|dob|cnic|cnic_issue|cnic_exp)$/.test(c[0])) return step === 1;
+    if (/^(a5|mobile)$/.test(c[0])) return step === 2;
+    return false;
+  });
+  checks.forEach(function (c) {
+    if (setBad(c[0], c[1])) { bad.push(c[0]); if (/^d[12]_/.test(c[0])) depIds.push(c[0]); }
+  });
 
-  var anyPurpose = ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"].some(function (id) { return $(id).checked; });
-  $("purposeErr").style.display = anyPurpose ? "none" : "block";
-  $("purposeErr").setAttribute("role", "alert");
-  $("purposeErr").setAttribute("aria-live", "assertive");
-  setGroupError($("purposes"), "purposeErr", !anyPurpose);
-  if (!anyPurpose) bad.push("purposes");
+  if (step === 3) {
+    for (var j = 1; j <= 2; j++) {
+      var ok = !!document.querySelector('input[name="d' + j + '_rel"]:checked');
+      var relGroup = $("d" + j + "_relbox");
+      relGroup.classList.toggle("bad-rel", !ok);
+      setGroupError(relGroup, "depErr", !ok);
+      if (!ok) { bad.push("d" + j + "_relbox"); depIds.push("rel" + j); }
+    }
+    $("depErr").style.display = depIds.length ? "block" : "none";
+    $("depErr").setAttribute("role", "alert");
+    $("depErr").setAttribute("aria-live", "assertive");
+  } else { $("depErr").style.display = "none"; }
 
-  var agreed = $("agree").checked;
-  $("agreeErr").style.display = agreed ? "none" : "block";
-  $("agreeErr").setAttribute("role", "alert");
-  $("agreeErr").setAttribute("aria-live", "assertive");
-  if (agreed) $("agree").removeAttribute("aria-invalid");
-  else $("agree").setAttribute("aria-invalid", "true");
-  syncDescribedBy($("agree"), "agreeErr", !agreed);
-  if (!agreed) bad.push("agree");
+  if (step === 1) {
+    var anyPurpose = ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"].some(function (id) { return $(id).checked; });
+    $("purposeErr").style.display = anyPurpose ? "none" : "block";
+    $("purposeErr").setAttribute("role", "alert");
+    $("purposeErr").setAttribute("aria-live", "assertive");
+    setGroupError($("purposes"), "purposeErr", !anyPurpose);
+    if (!anyPurpose) bad.push("purposes");
+
+    var detailByPurpose = { p_imm: "p_imm_t", p_gov: "p_gov_t", p_pvt: "p_pvt_t", p_oth: "p_oth_t" };
+    var selectedPurpose = ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"].filter(function (id) { return $(id).checked; })[0];
+    var detailId = detailByPurpose[selectedPurpose];
+    ["p_imm_t", "p_gov_t", "p_pvt_t", "p_oth_t"].forEach(function (id) {
+      var missing = id === detailId && !val(id);
+      setBad(id, missing);
+      if (missing) bad.push(id);
+    });
+  } else { $("purposeErr").style.display = "none"; }
+
+  if (step === 3) {
+    var agreed = $("agree").checked;
+    $("agreeErr").style.display = agreed ? "none" : "block";
+    $("agreeErr").setAttribute("role", "alert");
+    $("agreeErr").setAttribute("aria-live", "assertive");
+    if (agreed) $("agree").removeAttribute("aria-invalid");
+    else $("agree").setAttribute("aria-invalid", "true");
+    syncDescribedBy($("agree"), "agreeErr", !agreed);
+    if (!agreed) bad.push("agree");
+  } else { $("agreeErr").style.display = "none"; }
 
   if (bad.length) {
+    if (currentStep !== step) showStep(step, false);
     var firstId = bad[0];
     var first = firstId === "purposes" ? $("purposes") : firstId === "agree" ? $("agree") : $(firstId);
     var focusTarget = first;
@@ -316,6 +371,10 @@ function fieldIsValid(id) {
     case "cnic_exp": return !!value && value <= "2100-12-31" && (!val("cnic_issue") || value > val("cnic_issue"));
     case "a5": return value.length >= 5;
     case "mobile": return digits(value).length === 11 && value.slice(0, 2) === "03";
+    case "p_imm_t":
+    case "p_gov_t":
+    case "p_pvt_t":
+    case "p_oth_t": return value.length > 0;
   }
   if (/^d[12]_name$/.test(id) || /^d[12]_father$/.test(id)) return value.length >= 3;
   if (/^d[12]_cnic$/.test(id)) return digits(value).length === 13;
@@ -345,9 +404,17 @@ $("purposes").setAttribute("role", "group");
 $("purposes").setAttribute("aria-label", "Application purpose (choose one)");
 $("purposes").setAttribute("aria-describedby", "purposeErr");
 
-// Actions
+// Three-step navigation. Validate one step at a time.
+$("btnNext").addEventListener("click", function () {
+  if (validate(currentStep)) showStep(currentStep + 1, true);
+});
+$("btnBack").addEventListener("click", function () {
+  showStep(currentStep - 1, true);
+});
 $("btnPrint").addEventListener("click", function () {
-  if (!validate()) return;
+  for (var step = 1; step <= 3; step++) {
+    if (!validate(step)) return;
+  }
   try { window.print(); } catch (e) { toast("Printing is not available here. Open the link in your browser."); }
 });
 $("btnClear").addEventListener("click", function () {
@@ -375,9 +442,11 @@ $("btnClear").addEventListener("click", function () {
     syncDescribedBy(e, "depErr", false);
   });
   addrCount = 0; updateAddr(); updatePassport();
+  showStep(1, true);
   $("depErr").style.display = "none";
   $("purposeErr").style.display = "none";
   $("agreeErr").style.display = "none";
+  document.querySelectorAll(".purpose-field-err").forEach(function (e) { e.style.display = "none"; });
   document.querySelectorAll(".drel").forEach(function (group) { setGroupError(group, "depErr", false); });
   document.querySelectorAll(".bad-rel").forEach(function (e) { e.classList.remove("bad-rel"); });
   fitPage();
@@ -462,5 +531,6 @@ window.addEventListener("afterprint", function () {
   fitPage();
 });
 updateAddr(); updatePassport();
+showStep(1, false);
 fitScreen(); fitPage();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPage);
