@@ -1059,3 +1059,37 @@ html.mob .actions { display: grid; grid-template-columns: 1fr 1fr; margin-top: 8
     margin-top: 8px !important;
   }
 }
+
+
+/* ===== Accessible three-step data-entry wizard ===== */
+.wizard-status { width: 100%; margin: 0 auto 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); }
+.wizard-status-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; margin-bottom: 10px; }
+.wizard-status-heading strong { font-size: 15px; }
+.wizard-status-heading span { color: var(--muted); font-size: 14px; }
+.wizard-progress { height: 7px; overflow: hidden; border-radius: 99px; background: var(--soft); margin-bottom: 10px; }
+.wizard-progress span { display: block; width: 33.333%; height: 100%; background: var(--accent); border-radius: inherit; transition: width .2s ease; }
+.step-list { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 0; margin: 0; }
+.step-list li { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--muted); font-size: 12px; }
+.step-list li span { display: inline-flex; flex: 0 0 24px; width: 24px; height: 24px; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 50%; font-weight: 700; }
+.step-list li.current { color: var(--accent); font-weight: 700; }
+.step-list li.current span { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.form-step { display: contents; }
+.form-step[hidden] { display: none !important; }
+.wizard-only { margin-top: 0 !important; }
+.wizard-only:focus, .form-step h1:focus { outline: 3px solid var(--accent); outline-offset: 3px; }
+.purpose .lab .err { flex-basis: 100%; white-space: normal; }
+.purpose input.invalid { border-bottom-color: var(--alert) !important; }
+#btnBack:disabled { opacity: .45; cursor: not-allowed; }
+.actions button[hidden] { display: none !important; }
+@media screen and (max-width: 600px) {
+ .wizard-status { padding: 12px; margin-bottom: 10px; }
+ .step-list { gap: 5px; }
+ .step-list li { flex-direction: column; align-items: flex-start; gap: 4px; font-size: 11px; }
+ .step-list li span { flex-basis: 26px; width: 26px; height: 26px; }
+ .actions { gap: 6px; padding-left: 8px; padding-right: 8px; }
+ button.btn { padding: 9px 11px; font-size: 14px; }
+}
+@media print {
+ .wizard-status, .wizard-only, #btnBack, #btnNext, #btnClear, #btnPrint { display: none !important; }
+ .form-step, .form-step[hidden] { display: contents !important; }
+}
