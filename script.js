@@ -104,7 +104,7 @@ $("photoInput").addEventListener("change", function () {
 // Purpose is a dedicated step: only show the selected option's extra field.
 (function () {
   var ids = ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"];
-  var detailIds = { p_imm: "p_imm_t", p_gov: "p_gov_t", p_pvt: "p_pvt_t", p_oth: "p_oth_t" };
+  var detailIds = { p_gov: "p_gov_t", p_pvt: "p_pvt_t", p_oth: "p_oth_t" };
   function updatePurposeUI() {
     var selectedId = ids.filter(function (id) { return $(id).checked; })[0];
     ids.forEach(function (id) {
@@ -367,6 +367,7 @@ function validate(step) {
 }
 document.getElementById("appForm").addEventListener("change", function (e) {
   var t = e.target;
+  if (t.id === "visa_country" && t.value) { setBad("visa_country", false); var countryError = $("visa_countryErr"); if (countryError) countryError.hidden = true; }
   if (t.name && /_rel$/.test(t.name)) {
     var group = t.closest(".drel");
     group.classList.remove("bad-rel");
