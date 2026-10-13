@@ -1131,3 +1131,66 @@ html.mob .actions { display: grid; grid-template-columns: 1fr 1fr; margin-top: 8
   .step-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .step-list li { font-size: 10px; }
 }
+
+
+/* Professional visual refresh and visa-purpose detail panel */
+:root { --bg:#eef2f7; --paper:#fff; --ink:#17263c; --muted:#596a80; --line:#d4deea; --soft:#f5f8fc; --accent:#173f78; --accent-ink:#fff; }
+@media (prefers-color-scheme: dark) {
+ :root:not([data-theme="light"]) { --bg:#101827; --paper:#182438; --ink:#edf3fb; --muted:#a8b6c9; --line:#34465f; --soft:#202f45; --accent:#8db9f5; --accent-ink:#101827; }
+}
+body { background:var(--bg); }
+.wrap { width:min(100%,900px); max-width:900px; padding:24px 16px 120px; }
+.card { background:var(--paper); border:1px solid var(--line); border-radius:18px; box-shadow:0 16px 48px rgba(22,43,73,.09); overflow:hidden; }
+#appForm { padding:22px clamp(16px,3vw,30px) 28px; }
+.wizard-status { border-radius:12px; background:var(--soft); border-color:var(--line); padding:16px 18px; }
+.wizard-status-heading strong { color:var(--accent); letter-spacing:.02em; }
+.wizard-progress { height:8px; }
+.step-list li { font-size:13px; font-weight:600; }
+.step-list li span { width:28px; height:28px; flex-basis:28px; }
+.form-step h1 { font-size:clamp(22px,3vw,28px); }
+.form-step h2 { font-size:17px; border-bottom:1px solid var(--line); padding-bottom:9px; margin-top:20px; }
+input[type=text], input[type=tel], input[type=date], textarea, select {
+ border:1px solid var(--line); border-radius:8px; padding:10px 11px; min-height:42px;
+ background:var(--paper); color:var(--ink); box-shadow:none; font:inherit; width:100%; min-width:0;
+}
+textarea { min-height:72px; }
+input:focus, textarea:focus, select:focus { outline:3px solid rgba(23,63,120,.16); border-color:var(--accent); box-shadow:none; }
+.purposes { gap:10px; margin:14px 0 8px; }
+.purpose { padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:var(--paper); transition:border-color .15s,background .15s; }
+.purpose.selected { border-color:var(--accent); background:var(--soft); box-shadow:inset 3px 0 0 var(--accent); }
+.purpose-line { gap:10px; }
+.purpose .lab label { font-weight:600; }
+.visa-details { margin:16px 0 12px; padding:18px; border:1px solid var(--line); border-radius:14px; background:var(--soft); }
+.visa-details[hidden] { display:none !important; }
+.visa-details-heading { display:flex; gap:12px; align-items:center; margin-bottom:16px; }
+.visa-icon { display:inline-flex; align-items:center; justify-content:center; width:42px; height:42px; border-radius:12px; background:var(--accent); color:var(--accent-ink); font-size:22px; flex:0 0 42px; }
+.visa-details h3 { margin:0; font-family:var(--serif); font-size:18px; }
+.visa-details-heading p, .visa-help { margin:3px 0 0; color:var(--muted); font-size:13px; }
+.visa-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 18px; }
+.visa-fields .f > label { font-weight:600; color:var(--ink); }
+.visa-help { margin-top:12px; }
+.actions { background:var(--paper); }
+button.btn { border-radius:9px; padding:11px 18px; }
+button.btn.primary { box-shadow:0 4px 12px rgba(23,63,120,.16); }
+.privacy { max-width:700px; margin:16px auto 0; }
+@media screen and (max-width:600px) {
+ .wrap { width:100%; padding:10px 8px 120px; }
+ .card { border-radius:12px; }
+ #appForm { padding:12px 12px 20px; }
+ .purpose-line { flex-wrap:wrap; }
+ .purpose-line .purpose { flex:1 1 100% !important; }
+ .purpose-line .lab { flex-wrap:wrap; }
+ .visa-fields { grid-template-columns:minmax(0,1fr); }
+ .visa-details { padding:14px; }
+ .step-list li { font-size:10px; }
+}
+@media print {
+ body { background:#fff !important; }
+ .wrap { width:auto; max-width:none; padding:0; }
+ .card { border:0; border-radius:0; box-shadow:none; overflow:visible; }
+ #appForm { padding:0; }
+ .visa-details { background:#fff; border-color:#999; }
+ .visa-details[hidden] { display:none !important; }
+ .visa-details-heading p, .visa-help { color:#333; }
+ input[type=text], input[type=tel], input[type=date], textarea, select { border:0; border-bottom:1px solid #777; border-radius:0; background:#fff; }
+}
