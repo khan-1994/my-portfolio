@@ -23,6 +23,11 @@ var val = function (id) { return ($(id).value || "").trim(); };
       '<label class="check"><input type="checkbox" name="d' + i + '_rel" value="Family Member"> Family Member</label></div>';
   }
   $("deps").innerHTML = html;
+  document.querySelectorAll(".drel").forEach(function (group, index) {
+    group.setAttribute("role", "group");
+    group.setAttribute("aria-label", "Deponent " + (index + 1) + " relationship");
+    group.setAttribute("aria-describedby", "depErr");
+  });
   // only one of Neighbor / Family Member per deponent
   document.querySelectorAll('.drel input[type=checkbox]').forEach(function (cb) {
     cb.addEventListener("change", function () {
@@ -80,48 +85,55 @@ function today() {
 // Name under signature
 $("name").addEventListener("input", function () { $("sigName").textContent = this.value.trim(); });
 
-// Photo
-$("photoInput").addEventListener("change", function () {
-  var f = this.files && this.files[0];
-  if (!f) return;
-  var r = new FileReader();
-  r.onload = function () {
-    var old = $("photoBox").querySelector("img"); if (old) old.remove();
-    var img = new Image(); img.src = r.result; img.alt = "Applicant photo";
-    $("photoBox").appendChild(img); $("photoHint").style.display = "none";
-  };
-  r.readAsDataURL(f);
-});
 
 
 
 
-// Purpose: tick any ONE option (Visa, Immigration, ...). Choosing another moves the tick.
+// Purpose is a dedicated step: only show the selected option's extra field.
 (function () {
   var ids = ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"];
+  var detailIds = { p_gov: "p_gov_t", p_pvt: "p_pvt_t", p_oth: "p_oth_t" };
+  function updatePurposeUI() {
+    var selectedId = ids.filter(function (id) { return $(id).checked; })[0];
+    ids.forEach(function (id) {
+      var box = $(id), wrapper = box.closest(".purpose"), selected = box.checked;
+      wrapper.classList.toggle("selected", selected);
+      var detail = $(detailIds[id]);
+      if (!detail) return;
+      detail.hidden = !selected;
+      detail.setAttribute("aria-hidden", selected ? "false" : "true");
+      var error = $(detail.id + "Err");
+      if (!selected) {
+        detail.value = "";
+        setBad(detail.id, false);
+        if (error) { error.style.display = "none"; error.hidden = true; }
+      } else if (error) error.hidden = false;
+    });
+    var visaDetails = $("visaDetails");
+    if (visaDetails) visaDetails.hidden = !($("p_visa").checked || $("p_imm").checked);
+    var countryErr = $("visa_countryErr");
+    if (countryErr && $("visa_country").value) { countryErr.hidden = true; setBad("visa_country", false); }
+    updatePassport();
+  }
   ids.forEach(function (id) {
-    var box = $(id);
+    var box = $(id), detail = $(detailIds[id]);
     box.addEventListener("change", function () {
-      if (ids.some(function (o) { return $(o).checked; })) $("purposeErr").style.display = "none";
-      if (!box.checked) return;
-      ids.forEach(function (o) {
-        if (o === id) return;
-        $(o).checked = false;
-        var t = $(o + "_t"); if (t) t.value = "";
-      });
+      if (box.checked) ids.forEach(function (otherId) { if (otherId !== id) $(otherId).checked = false; });
+      var chosen = ids.some(function (otherId) { return $(otherId).checked; });
+      $("purposeErr").style.display = chosen ? "none" : "block";
+      setGroupError($("purposes"), "purposeErr", !chosen);
+      updatePurposeUI();
     });
-    var txt = $(id + "_t");
-    if (txt) txt.addEventListener("input", function () {
-      if (txt.value.trim() && !box.checked) { box.checked = true; box.dispatchEvent(new Event("change")); }
+    if (detail) detail.addEventListener("input", function () {
+      if (detail.value.trim() && !box.checked) { box.checked = true; box.dispatchEvent(new Event("change")); }
     });
-    // bigger tap area: tapping the empty space around an option also toggles it
     box.closest(".purpose").addEventListener("click", function (e) {
-      var tag = e.target.tagName;
-      if (tag === "INPUT" || tag === "LABEL") return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "LABEL") return;
       box.checked = !box.checked;
       box.dispatchEvent(new Event("change"));
     });
   });
+  updatePurposeUI();
 })();
 
 
@@ -179,17 +191,76 @@ function toast(msg) {
   clearTimeout(tt); tt = setTimeout(function () { t.classList.remove("show"); }, 3200);
 }
 
-// Validation
+// Validation and accessible error associations
+function syncDescribedBy(el, id, add) {
+  if (!el) return;
+  var ids = (el.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+  var index = ids.indexOf(id);
+  if (add && index === -1) ids.push(id);
+  if (!add && index !== -1) ids.splice(index, 1);
+  if (ids.length) el.setAttribute("aria-describedby", ids.join(" "));
+  else el.removeAttribute("aria-describedby");
+}
 function setBad(id, bad) {
-  var el = $(id); el.classList.toggle("invalid", bad);
-  var f = el.closest(".f"); if (f) f.classList.toggle("bad", bad);
+  var el = $(id);
+  if (!el) return false;
+  el.classList.toggle("invalid", bad);
+  if (bad) el.setAttribute("aria-invalid", "true");
+  else el.removeAttribute("aria-invalid");
+
+  var f = el.closest(".f");
+  if (f) {
+    f.classList.toggle("bad", bad);
+    var err = f.querySelector(".err");
+    if (err) {
+      if (!err.id) err.id = id + "Err";
+      syncDescribedBy(el, err.id, bad);
+    }
+  } else if (/^p_(imm|gov|pvt|oth)_t$/.test(id)) {
+    syncDescribedBy(el, id + "Err", bad);
+    var purposeFieldErr = $(id + "Err");
+    if (purposeFieldErr) purposeFieldErr.style.display = bad ? "block" : "none";
+  } else if (/^d[12]_/.test(id)) {
+    syncDescribedBy(el, "depErr", bad);
+  }
   return bad;
 }
-function validate() {
+function setGroupError(group, errorId, bad) {
+  if (!group) return;
+  if (bad) group.setAttribute("aria-invalid", "true");
+  else group.removeAttribute("aria-invalid");
+  syncDescribedBy(group, errorId, bad);
+}
+var currentStep = 1;
+var stepNames = { 1: "Application Purpose", 2: "Personal Information", 3: "Address & Contact Details", 4: "Witnesses & Declaration" };
+function showStep(step, moveFocus) {
+  currentStep = Math.max(1, Math.min(4, step));
+  document.querySelectorAll(".form-step").forEach(function (panel) {
+    panel.hidden = Number(panel.getAttribute("data-step")) !== currentStep;
+  });
+  $("stepCounter").textContent = "Step " + currentStep + " of 4";
+  $("stepName").textContent = stepNames[currentStep];
+  $("stepProgress").style.width = (currentStep / 4 * 100) + "%";
+  document.querySelector(".wizard-progress").setAttribute("aria-valuenow", String(currentStep));
+  document.querySelectorAll("[data-step-indicator]").forEach(function (item) {
+    var active = Number(item.getAttribute("data-step-indicator")) === currentStep;
+    item.classList.toggle("current", active);
+    if (active) item.setAttribute("aria-current", "step");
+    else item.removeAttribute("aria-current");
+  });
+  $("btnBack").disabled = currentStep === 1;
+  $("btnNext").hidden = currentStep === 4;
+  $("btnPrint").hidden = currentStep !== 4;
+  if (moveFocus) {
+    var panel = $("step" + currentStep), heading = panel && panel.querySelector(".wizard-only, h1");
+    if (heading) { heading.focus(); heading.scrollIntoView({ behavior: "smooth", block: "start" }); }
+  }
+}
+function validate(step) {
+  step = step || currentStep;
   var bad = [];
   var checks = [
-    ["name", val("name").length < 3],
-    ["caste", val("caste").length < 2],
+    ["name", val("name").length < 3], ["caste", val("caste").length < 2],
     ["father", val("father").length < 3],
     ["dob", !val("dob") || val("dob") > today() || val("dob") < "1900-01-01"],
     ["cnic", digits(val("cnic")).length !== 13],
@@ -207,21 +278,76 @@ function validate() {
     checks.push([d + "mob", digits(val(d + "mob")).length !== 11 || val(d + "mob").slice(0, 2) !== "03"]);
     checks.push([d + "addr", val(d + "addr").length < 5]);
   }
-  checks.forEach(function (c) { if (setBad(c[0], c[1])) { bad.push(c[0]); if (/^d[12]_/.test(c[0])) depIds.push(c[0]); } });
-  for (var j = 1; j <= 2; j++) {
-    var ok = !!document.querySelector('input[name="d' + j + '_rel"]:checked');
-    $("d" + j + "_relbox").classList.toggle("bad-rel", !ok);
-    if (!ok) { bad.push("d" + j + "_relbox"); depIds.push("rel" + j); }
+  checks = checks.filter(function (c) {
+    if (/^d[12]_/.test(c[0])) return step === 4;
+    if (/^(name|caste|father|dob|cnic|cnic_issue|cnic_exp)$/.test(c[0])) return step === 2;
+    if (/^(a5|mobile)$/.test(c[0])) return step === 3;
+    return false;
+  });
+  checks.forEach(function (c) {
+    if (setBad(c[0], c[1])) { bad.push(c[0]); if (/^d[12]_/.test(c[0])) depIds.push(c[0]); }
+  });
+  if (step === 1) {
+    var purposeIds = ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"];
+    var selectedPurpose = purposeIds.filter(function (id) { return $(id).checked; })[0];
+    var anyPurpose = !!selectedPurpose;
+    $("purposeErr").style.display = anyPurpose ? "none" : "block";
+    $("purposeErr").setAttribute("role", "alert");
+    $("purposeErr").setAttribute("aria-live", "assertive");
+    setGroupError($("purposes"), "purposeErr", !anyPurpose);
+    if (!anyPurpose) bad.push("purposes");
+    var needsCountry = selectedPurpose === "p_visa" || selectedPurpose === "p_imm";
+    var countryMissing = needsCountry && !val("visa_country");
+    setBad("visa_country", countryMissing);
+    var countryErr = $("visa_countryErr");
+    if (countryErr) countryErr.hidden = !countryMissing;
+    if (countryMissing) bad.push("visa_country");
+    var detailByPurpose = { p_gov: "p_gov_t", p_pvt: "p_pvt_t", p_oth: "p_oth_t" };
+    var detailId = detailByPurpose[selectedPurpose];
+    ["p_gov_t", "p_pvt_t", "p_oth_t"].forEach(function (id) {
+      var missing = id === detailId && !val(id);
+      setBad(id, missing);
+      if (missing) bad.push(id);
+    });
+  } else $("purposeErr").style.display = "none";
+
+  if (step === 4) {
+    for (var j = 1; j <= 2; j++) {
+      var ok = !!document.querySelector('input[name="d' + j + '_rel"]:checked');
+      var relGroup = $("d" + j + "_relbox");
+      relGroup.classList.toggle("bad-rel", !ok);
+      setGroupError(relGroup, "depErr", !ok);
+      relGroup.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+        if (!ok) cb.setAttribute("aria-invalid", "true"); else cb.removeAttribute("aria-invalid");
+        syncDescribedBy(cb, "depErr", !ok);
+      });
+      if (!ok) { bad.push("d" + j + "_relbox"); depIds.push("rel" + j); }
+    }
+    $("depErr").style.display = depIds.length ? "block" : "none";
+    $("depErr").setAttribute("role", "alert");
+    $("depErr").setAttribute("aria-live", "assertive");
+    var agreed = $("agree").checked;
+    $("agreeErr").style.display = agreed ? "none" : "block";
+    $("agreeErr").setAttribute("role", "alert");
+    $("agreeErr").setAttribute("aria-live", "assertive");
+    if (agreed) $("agree").removeAttribute("aria-invalid"); else $("agree").setAttribute("aria-invalid", "true");
+    syncDescribedBy($("agree"), "agreeErr", !agreed);
+    if (!agreed) bad.push("agree");
+  } else {
+    $("depErr").style.display = "none";
+    $("agreeErr").style.display = "none";
   }
-  $("depErr").style.display = depIds.length ? "block" : "none";
-  var anyPurpose = ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"].some(function (id) { return $(id).checked; });
-  $("purposeErr").style.display = anyPurpose ? "none" : "block";
-  if (!anyPurpose) bad.push("purposes");
-  $("agreeErr").style.display = $("agree").checked ? "none" : "block";
-  if (!$("agree").checked) bad.push("agree");
   if (bad.length) {
-    var first = bad[0] === "purposes" ? $("purposes") : $(bad[0]);
-    first.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (currentStep !== step) showStep(step, false);
+    var firstId = bad[0];
+    var first = firstId === "purposes" ? $("purposes") : firstId === "agree" ? $("agree") : $(firstId);
+    var focusTarget = first;
+    if (firstId === "purposes") focusTarget = $("p_visa");
+    else if (firstId === "d1_relbox" || firstId === "d2_relbox") focusTarget = first.querySelector("input[type=checkbox]");
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (focusTarget && typeof focusTarget.focus === "function") {
+      try { focusTarget.focus({ preventScroll: true }); } catch (e) { focusTarget.focus(); }
+    }
     toast("Please fix the highlighted fields.");
     return false;
   }
@@ -229,28 +355,120 @@ function validate() {
 }
 document.getElementById("appForm").addEventListener("change", function (e) {
   var t = e.target;
-  if (t.name && /_rel$/.test(t.name)) t.closest(".drel").classList.remove("bad-rel");
+  if (t.id === "visa_country" && t.value) { setBad("visa_country", false); var countryError = $("visa_countryErr"); if (countryError) countryError.hidden = true; }
+  if (t.name && /_rel$/.test(t.name)) {
+    var group = t.closest(".drel");
+    group.classList.remove("bad-rel");
+    setGroupError(group, "depErr", false);
+    group.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+      cb.removeAttribute("aria-invalid");
+      syncDescribedBy(cb, "depErr", false);
+    });
+  }
+  if (/^p_(visa|imm|gov|pvt|oth)$/.test(t.id)) {
+    var chosen = ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"].some(function (id) { return $(id).checked; });
+    if (chosen) {
+      $("purposeErr").style.display = "none";
+      setGroupError($("purposes"), "purposeErr", false);
+    }
+  }
 });
+function fieldIsValid(id) {
+  var value = val(id);
+  switch (id) {
+    case "name": return value.length >= 3;
+    case "caste": return value.length >= 2;
+    case "father": return value.length >= 3;
+    case "dob": return !!value && value <= today() && value >= "1900-01-01";
+    case "cnic": return digits(value).length === 13;
+    case "cnic_issue": return !!value && value <= today() && value >= "1900-01-01";
+    case "cnic_exp": return !!value && value <= "2100-12-31" && (!val("cnic_issue") || value > val("cnic_issue"));
+    case "a5": return value.length >= 5;
+    case "mobile": return digits(value).length === 11 && value.slice(0, 2) === "03";
+    case "p_gov_t":
+    case "p_pvt_t":
+    case "p_oth_t": return value.length > 0;
+  }
+  if (/^d[12]_name$/.test(id) || /^d[12]_father$/.test(id)) return value.length >= 3;
+  if (/^d[12]_cnic$/.test(id)) return digits(value).length === 13;
+  if (/^d[12]_mob$/.test(id)) return digits(value).length === 11 && value.slice(0, 2) === "03";
+  if (/^d[12]_addr$/.test(id)) return value.length >= 5;
+  return false;
+}
 document.getElementById("appForm").addEventListener("input", function (e) {
-  if (e.target.classList.contains("invalid")) setBad(e.target.id, false);
+  var target = e.target;
+  if (target.classList.contains("invalid") && fieldIsValid(target.id)) {
+    setBad(target.id, false);
+  }
 });
-$("agree").addEventListener("change", function () { if (this.checked) $("agreeErr").style.display = "none"; });
+$("agree").addEventListener("change", function () {
+  if (this.checked) {
+    $("agreeErr").style.display = "none";
+    this.removeAttribute("aria-invalid");
+    syncDescribedBy(this, "agreeErr", false);
+  }
+});
+// Give visible field errors an announcement role when validation reveals them.
+document.querySelectorAll(".f .err").forEach(function (err) {
+  err.setAttribute("role", "alert");
+  err.setAttribute("aria-live", "assertive");
+});
+$("purposes").setAttribute("role", "group");
+$("purposes").setAttribute("aria-label", "Application purpose (choose one)");
+$("purposes").setAttribute("aria-describedby", "purposeErr");
 
-// Actions
+// Three-step navigation. Validate one step at a time.
+$("btnNext").addEventListener("click", function () {
+  if (validate(currentStep)) showStep(currentStep + 1, true);
+});
+$("btnBack").addEventListener("click", function () {
+  showStep(currentStep - 1, true);
+});
 $("btnPrint").addEventListener("click", function () {
-  if (!validate()) return;
-  try { window.print(); } catch (e) { toast("Printing is not available here. Open the link in your browser."); }
+  for (var step = 1; step <= 4; step++) {
+    if (!validate(step)) return;
+  }
+  // Reveal the formal request letter only in the output after every step validates.
+  document.documentElement.classList.add("submitted-for-print");
+  try {
+    window.print();
+  } catch (e) {
+    document.documentElement.classList.remove("submitted-for-print");
+    toast("Printing is not available here. Open the link in your browser.");
+  }
 });
 $("btnClear").addEventListener("click", function () {
   if (!confirm("Clear everything you have entered?")) return;
   document.getElementById("appForm").reset();
-  var img = $("photoBox").querySelector("img"); if (img) img.remove(); $("photoHint").style.display = "";
+
   ["a5_y", "a6_y", "a7_y"].forEach(function (id) { $(id).value = ""; });
   $("sigName").textContent = "";
-  document.querySelectorAll(".invalid").forEach(function (e) { e.classList.remove("invalid"); });
+  document.querySelectorAll(".invalid").forEach(function (e) {
+    e.classList.remove("invalid");
+    e.removeAttribute("aria-invalid");
+    ["purposeErr", "agreeErr", "depErr"].forEach(function (id) { syncDescribedBy(e, id, false); });
+    var f = e.closest(".f");
+    if (f) {
+      var err = f.querySelector(".err");
+      if (err && err.id) syncDescribedBy(e, err.id, false);
+    }
+    if (/^p_(imm|gov|pvt|oth)_t$/.test(e.id)) syncDescribedBy(e, e.id + "Err", false);
+  });
   document.querySelectorAll(".bad").forEach(function (e) { e.classList.remove("bad"); });
+  setGroupError($("purposes"), "purposeErr", false);
+  $("agree").removeAttribute("aria-invalid");
+  syncDescribedBy($("agree"), "agreeErr", false);
+  document.querySelectorAll(".drel input").forEach(function (e) {
+    e.removeAttribute("aria-invalid");
+    syncDescribedBy(e, "depErr", false);
+  });
   addrCount = 0; updateAddr(); updatePassport();
+  showStep(1, true);
   $("depErr").style.display = "none";
+  $("purposeErr").style.display = "none";
+  $("agreeErr").style.display = "none";
+  document.querySelectorAll(".purpose-field-err").forEach(function (e) { e.style.display = "none"; });
+  document.querySelectorAll(".drel").forEach(function (group) { setGroupError(group, "depErr", false); });
   document.querySelectorAll(".bad-rel").forEach(function (e) { e.classList.remove("bad-rel"); });
   fitPage();
   toast("Form cleared.");
@@ -328,11 +546,12 @@ window.addEventListener("beforeprint", function () {
   fitPage();
 });
 window.addEventListener("afterprint", function () {
-  document.documentElement.classList.remove("printing");
+  document.documentElement.classList.remove("printing", "submitted-for-print");
   setMode();
   fitScreen();
   fitPage();
 });
 updateAddr(); updatePassport();
+showStep(1, false);
 fitScreen(); fitPage();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPage);
