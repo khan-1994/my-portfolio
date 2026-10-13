@@ -421,7 +421,14 @@ $("btnPrint").addEventListener("click", function () {
   for (var step = 1; step <= 3; step++) {
     if (!validate(step)) return;
   }
-  try { window.print(); } catch (e) { toast("Printing is not available here. Open the link in your browser."); }
+  // Reveal the formal request letter only in the output after every step validates.
+  document.documentElement.classList.add("submitted-for-print");
+  try {
+    window.print();
+  } catch (e) {
+    document.documentElement.classList.remove("submitted-for-print");
+    toast("Printing is not available here. Open the link in your browser.");
+  }
 });
 $("btnClear").addEventListener("click", function () {
   if (!confirm("Clear everything you have entered?")) return;
@@ -532,7 +539,7 @@ window.addEventListener("beforeprint", function () {
   fitPage();
 });
 window.addEventListener("afterprint", function () {
-  document.documentElement.classList.remove("printing");
+  document.documentElement.classList.remove("printing", "submitted-for-print");
   setMode();
   fitScreen();
   fitPage();
