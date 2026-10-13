@@ -122,7 +122,9 @@ $("photoInput").addEventListener("change", function () {
       } else if (error) error.hidden = false;
     });
     var visaDetails = $("visaDetails");
-    if (visaDetails) visaDetails.hidden = !$("p_visa").checked;
+    if (visaDetails) visaDetails.hidden = !($("p_visa").checked || $("p_imm").checked);
+    var countryErr = $("visa_countryErr");
+    if (countryErr && $("visa_country").value) { countryErr.hidden = true; setBad("visa_country", false); }
     updatePassport();
   }
   ids.forEach(function (id) {
@@ -306,9 +308,15 @@ function validate(step) {
     $("purposeErr").setAttribute("aria-live", "assertive");
     setGroupError($("purposes"), "purposeErr", !anyPurpose);
     if (!anyPurpose) bad.push("purposes");
-    var detailByPurpose = { p_imm: "p_imm_t", p_gov: "p_gov_t", p_pvt: "p_pvt_t", p_oth: "p_oth_t" };
+    var needsCountry = selectedPurpose === "p_visa" || selectedPurpose === "p_imm";
+    var countryMissing = needsCountry && !val("visa_country");
+    setBad("visa_country", countryMissing);
+    var countryErr = $("visa_countryErr");
+    if (countryErr) countryErr.hidden = !countryMissing;
+    if (countryMissing) bad.push("visa_country");
+    var detailByPurpose = { p_gov: "p_gov_t", p_pvt: "p_pvt_t", p_oth: "p_oth_t" };
     var detailId = detailByPurpose[selectedPurpose];
-    ["p_imm_t", "p_gov_t", "p_pvt_t", "p_oth_t"].forEach(function (id) {
+    ["p_gov_t", "p_pvt_t", "p_oth_t"].forEach(function (id) {
       var missing = id === detailId && !val(id);
       setBad(id, missing);
       if (missing) bad.push(id);
@@ -388,7 +396,6 @@ function fieldIsValid(id) {
     case "cnic_exp": return !!value && value <= "2100-12-31" && (!val("cnic_issue") || value > val("cnic_issue"));
     case "a5": return value.length >= 5;
     case "mobile": return digits(value).length === 11 && value.slice(0, 2) === "03";
-    case "p_imm_t":
     case "p_gov_t":
     case "p_pvt_t":
     case "p_oth_t": return value.length > 0;
