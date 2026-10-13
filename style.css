@@ -1194,3 +1194,19 @@ button.btn.primary { box-shadow:0 4px 12px rgba(23,63,120,.16); }
  .visa-details-heading p, .visa-help { color:#333; }
  input[type=text], input[type=tel], input[type=date], textarea, select { border:0; border-bottom:1px solid #777; border-radius:0; background:#fff; }
 }
+
+
+/* Keep the passport photo in the upper-right corner while particulars use the available space. */
+#step2 .top { display:block; min-height:0; margin:0; }
+#step2 .photo { float:right; margin:0 0 10px 16px; position:relative; }
+#step2 > h2 { margin-top:12px; }
+#step2::after { content:""; display:block; clear:both; }
+@media screen and (max-width:600px) {
+  #step2 .photo { width:94px; height:118px; margin-left:12px; margin-bottom:8px; }
+  #step2 > h2 { margin-top:10px; }
+}
+@media print {
+  #step2 .top { display:block !important; min-height:0 !important; }
+  #step2 .photo { float:right !important; margin:0 0 6mm 6mm !important; width:28mm !important; height:35mm !important; }
+  #step2 > h2 { margin-top:3mm !important; }
+}
