@@ -101,32 +101,47 @@ $("photoInput").addEventListener("change", function () {
 
 
 
-// Purpose: tick any ONE option (Visa, Immigration, ...). Choosing another moves the tick.
+// Purpose is a dedicated step: only show the selected option's extra field.
 (function () {
   var ids = ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"];
+  var detailIds = { p_imm: "p_imm_t", p_gov: "p_gov_t", p_pvt: "p_pvt_t", p_oth: "p_oth_t" };
+  function updatePurposeUI() {
+    var selectedId = ids.filter(function (id) { return $(id).checked; })[0];
+    ids.forEach(function (id) {
+      var box = $(id), wrapper = box.closest(".purpose"), selected = box.checked;
+      wrapper.classList.toggle("selected", selected);
+      var detail = $(detailIds[id]);
+      if (!detail) return;
+      detail.hidden = !selected;
+      detail.setAttribute("aria-hidden", selected ? "false" : "true");
+      var error = $(detail.id + "Err");
+      if (!selected) {
+        detail.value = "";
+        setBad(detail.id, false);
+        if (error) { error.style.display = "none"; error.hidden = true; }
+      } else if (error) error.hidden = false;
+    });
+    updatePassport();
+  }
   ids.forEach(function (id) {
-    var box = $(id);
+    var box = $(id), detail = $(detailIds[id]);
     box.addEventListener("change", function () {
-      if (ids.some(function (o) { return $(o).checked; })) $("purposeErr").style.display = "none";
-      if (!box.checked) return;
-      ids.forEach(function (o) {
-        if (o === id) return;
-        $(o).checked = false;
-        var t = $(o + "_t"); if (t) { t.value = ""; setBad(t.id, false); }
-      });
+      if (box.checked) ids.forEach(function (otherId) { if (otherId !== id) $(otherId).checked = false; });
+      var chosen = ids.some(function (otherId) { return $(otherId).checked; });
+      $("purposeErr").style.display = chosen ? "none" : "block";
+      setGroupError($("purposes"), "purposeErr", !chosen);
+      updatePurposeUI();
     });
-    var txt = $(id + "_t");
-    if (txt) txt.addEventListener("input", function () {
-      if (txt.value.trim() && !box.checked) { box.checked = true; box.dispatchEvent(new Event("change")); }
+    if (detail) detail.addEventListener("input", function () {
+      if (detail.value.trim() && !box.checked) { box.checked = true; box.dispatchEvent(new Event("change")); }
     });
-    // bigger tap area: tapping the empty space around an option also toggles it
     box.closest(".purpose").addEventListener("click", function (e) {
-      var tag = e.target.tagName;
-      if (tag === "INPUT" || tag === "LABEL") return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "LABEL") return;
       box.checked = !box.checked;
       box.dispatchEvent(new Event("change"));
     });
   });
+  updatePurposeUI();
 })();
 
 
@@ -225,15 +240,15 @@ function setGroupError(group, errorId, bad) {
   syncDescribedBy(group, errorId, bad);
 }
 var currentStep = 1;
-var stepNames = { 1: "Purpose & Personal Information", 2: "Address & Contact Details", 3: "Witnesses & Declaration" };
+var stepNames = { 1: "Application Purpose", 2: "Personal Information", 3: "Address & Contact Details", 4: "Witnesses & Declaration" };
 function showStep(step, moveFocus) {
-  currentStep = Math.max(1, Math.min(3, step));
+  currentStep = Math.max(1, Math.min(4, step));
   document.querySelectorAll(".form-step").forEach(function (panel) {
     panel.hidden = Number(panel.getAttribute("data-step")) !== currentStep;
   });
-  $("stepCounter").textContent = "Step " + currentStep + " of 3";
+  $("stepCounter").textContent = "Step " + currentStep + " of 4";
   $("stepName").textContent = stepNames[currentStep];
-  $("stepProgress").style.width = (currentStep / 3 * 100) + "%";
+  $("stepProgress").style.width = (currentStep / 4 * 100) + "%";
   document.querySelector(".wizard-progress").setAttribute("aria-valuenow", String(currentStep));
   document.querySelectorAll("[data-step-indicator]").forEach(function (item) {
     var active = Number(item.getAttribute("data-step-indicator")) === currentStep;
@@ -242,8 +257,8 @@ function showStep(step, moveFocus) {
     else item.removeAttribute("aria-current");
   });
   $("btnBack").disabled = currentStep === 1;
-  $("btnNext").hidden = currentStep === 3;
-  $("btnPrint").hidden = currentStep !== 3;
+  $("btnNext").hidden = currentStep === 4;
+  $("btnPrint").hidden = currentStep !== 4;
   if (moveFocus) {
     var panel = $("step" + currentStep), heading = panel && panel.querySelector(".wizard-only, h1");
     if (heading) { heading.focus(); heading.scrollIntoView({ behavior: "smooth", block: "start" }); }
@@ -253,8 +268,7 @@ function validate(step) {
   step = step || currentStep;
   var bad = [];
   var checks = [
-    ["name", val("name").length < 3],
-    ["caste", val("caste").length < 2],
+    ["name", val("name").length < 3], ["caste", val("caste").length < 2],
     ["father", val("father").length < 3],
     ["dob", !val("dob") || val("dob") > today() || val("dob") < "1900-01-01"],
     ["cnic", digits(val("cnic")).length !== 13],
@@ -273,25 +287,40 @@ function validate(step) {
     checks.push([d + "addr", val(d + "addr").length < 5]);
   }
   checks = checks.filter(function (c) {
-    if (/^d[12]_/.test(c[0])) return step === 3;
-    if (/^(name|caste|father|dob|cnic|cnic_issue|cnic_exp)$/.test(c[0])) return step === 1;
-    if (/^(a5|mobile)$/.test(c[0])) return step === 2;
+    if (/^d[12]_/.test(c[0])) return step === 4;
+    if (/^(name|caste|father|dob|cnic|cnic_issue|cnic_exp)$/.test(c[0])) return step === 2;
+    if (/^(a5|mobile)$/.test(c[0])) return step === 3;
     return false;
   });
   checks.forEach(function (c) {
     if (setBad(c[0], c[1])) { bad.push(c[0]); if (/^d[12]_/.test(c[0])) depIds.push(c[0]); }
   });
+  if (step === 1) {
+    var purposeIds = ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"];
+    var selectedPurpose = purposeIds.filter(function (id) { return $(id).checked; })[0];
+    var anyPurpose = !!selectedPurpose;
+    $("purposeErr").style.display = anyPurpose ? "none" : "block";
+    $("purposeErr").setAttribute("role", "alert");
+    $("purposeErr").setAttribute("aria-live", "assertive");
+    setGroupError($("purposes"), "purposeErr", !anyPurpose);
+    if (!anyPurpose) bad.push("purposes");
+    var detailByPurpose = { p_imm: "p_imm_t", p_gov: "p_gov_t", p_pvt: "p_pvt_t", p_oth: "p_oth_t" };
+    var detailId = detailByPurpose[selectedPurpose];
+    ["p_imm_t", "p_gov_t", "p_pvt_t", "p_oth_t"].forEach(function (id) {
+      var missing = id === detailId && !val(id);
+      setBad(id, missing);
+      if (missing) bad.push(id);
+    });
+  } else $("purposeErr").style.display = "none";
 
-  if (step === 3) {
+  if (step === 4) {
     for (var j = 1; j <= 2; j++) {
       var ok = !!document.querySelector('input[name="d' + j + '_rel"]:checked');
       var relGroup = $("d" + j + "_relbox");
       relGroup.classList.toggle("bad-rel", !ok);
       setGroupError(relGroup, "depErr", !ok);
-      // The group itself is not focusable, so describe the focused relationship controls too.
       relGroup.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
-        if (!ok) cb.setAttribute("aria-invalid", "true");
-        else cb.removeAttribute("aria-invalid");
+        if (!ok) cb.setAttribute("aria-invalid", "true"); else cb.removeAttribute("aria-invalid");
         syncDescribedBy(cb, "depErr", !ok);
       });
       if (!ok) { bad.push("d" + j + "_relbox"); depIds.push("rel" + j); }
@@ -299,37 +328,17 @@ function validate(step) {
     $("depErr").style.display = depIds.length ? "block" : "none";
     $("depErr").setAttribute("role", "alert");
     $("depErr").setAttribute("aria-live", "assertive");
-  } else { $("depErr").style.display = "none"; }
-
-  if (step === 1) {
-    var anyPurpose = ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"].some(function (id) { return $(id).checked; });
-    $("purposeErr").style.display = anyPurpose ? "none" : "block";
-    $("purposeErr").setAttribute("role", "alert");
-    $("purposeErr").setAttribute("aria-live", "assertive");
-    setGroupError($("purposes"), "purposeErr", !anyPurpose);
-    if (!anyPurpose) bad.push("purposes");
-
-    var detailByPurpose = { p_imm: "p_imm_t", p_gov: "p_gov_t", p_pvt: "p_pvt_t", p_oth: "p_oth_t" };
-    var selectedPurpose = ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"].filter(function (id) { return $(id).checked; })[0];
-    var detailId = detailByPurpose[selectedPurpose];
-    ["p_imm_t", "p_gov_t", "p_pvt_t", "p_oth_t"].forEach(function (id) {
-      var missing = id === detailId && !val(id);
-      setBad(id, missing);
-      if (missing) bad.push(id);
-    });
-  } else { $("purposeErr").style.display = "none"; }
-
-  if (step === 3) {
     var agreed = $("agree").checked;
     $("agreeErr").style.display = agreed ? "none" : "block";
     $("agreeErr").setAttribute("role", "alert");
     $("agreeErr").setAttribute("aria-live", "assertive");
-    if (agreed) $("agree").removeAttribute("aria-invalid");
-    else $("agree").setAttribute("aria-invalid", "true");
+    if (agreed) $("agree").removeAttribute("aria-invalid"); else $("agree").setAttribute("aria-invalid", "true");
     syncDescribedBy($("agree"), "agreeErr", !agreed);
     if (!agreed) bad.push("agree");
-  } else { $("agreeErr").style.display = "none"; }
-
+  } else {
+    $("depErr").style.display = "none";
+    $("agreeErr").style.display = "none";
+  }
   if (bad.length) {
     if (currentStep !== step) showStep(step, false);
     var firstId = bad[0];
@@ -418,7 +427,7 @@ $("btnBack").addEventListener("click", function () {
   showStep(currentStep - 1, true);
 });
 $("btnPrint").addEventListener("click", function () {
-  for (var step = 1; step <= 3; step++) {
+  for (var step = 1; step <= 4; step++) {
     if (!validate(step)) return;
   }
   // Reveal the formal request letter only in the output after every step validates.
