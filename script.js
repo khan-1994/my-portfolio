@@ -277,7 +277,7 @@ var currentStep = 1;
 var stepNames = { 1: "Purpose", 2: "Personal details", 3: "Address", 4: "Witnesses", 5: "Review & Print" };
 
 function isWizard() {
-  return window.matchMedia("(max-width: 950px)").matches && !document.documentElement.classList.contains("printing");
+  return !document.documentElement.classList.contains("printing");
 }
 
 function goStep(n) {
