@@ -187,12 +187,25 @@ h2 {
   flex-direction: column !important;
   gap: 6px !important;
   padding: 12px !important;
+  width: 100% !important;
 }
 .purpose-line {
   display: flex !important;
   flex-direction: column !important;
+  flex-wrap: nowrap !important;
   gap: 6px !important;
   width: 100% !important;
+  align-items: stretch !important;
+}
+.purpose-line .purpose,
+.purpose-line .purpose:first-child,
+.purpose-line .purpose:last-child {
+  width: 100% !important;
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  display: flex !important;
+  grid-template-columns: none !important;
 }
 .purpose {
   display: flex !important;
@@ -200,6 +213,7 @@ h2 {
   align-items: center !important;
   gap: 10px !important;
   width: 100% !important;
+  max-width: none !important;
   padding: 10px 12px !important;
   border: 1.5px solid var(--line) !important;
   border-radius: 8px !important;
@@ -207,6 +221,7 @@ h2 {
   cursor: pointer !important;
   margin: 0 !important;
   min-height: 44px !important;
+  box-sizing: border-box !important;
 }
 .purpose:has(input:checked) {
   border-color: var(--accent) !important;
