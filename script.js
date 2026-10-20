@@ -1,7 +1,8 @@
 var $ = function (id) { return document.getElementById(id); };
 var val = function (id) { return ($(id).value || "").trim(); };
 
-// Deponents
+// Deponents — each wrapped in .dep-card for mobile-friendly stacked cards;
+// desktop/print still uses the 4-column table grid via CSS.
 (function buildDeps() {
   var rows = [
     ["Name:", "name", '<input type="text" id="d#_name">'],
@@ -13,17 +14,19 @@ var val = function (id) { return ($(id).value || "").trim(); };
   var html = "", i, r;
   for (i = 1; i <= 2; i++) {
     var sep = i === 2 ? " sep" : "";
-    html += '<div class="dhead r1 dp' + i + sep + '">Deponent #' + i + '</div>';
+    html += '<div class="dep-card dp' + i + sep + '">';
+    html += '<div class="dhead r1 dp' + i + '">Deponent #' + i + '</div>';
     for (r = 0; r < rows.length; r++) {
-      html += '<label class="dlab req r' + (r + 2) + ' dp' + i + sep + '" for="d' + i + '_' + rows[r][1] + '">' + rows[r][0] + '</label>' +
-              '<div class="dval r' + (r + 2) + ' dp' + i + '">' + rows[r][2].replace(/#/g, i) + '</div>';
+      html += '<div class="dfield r' + (r + 2) + ' dp' + i + '">' +
+              '<label class="dlab req" for="d' + i + '_' + rows[r][1] + '">' + rows[r][0] + '</label>' +
+              '<div class="dval">' + rows[r][2].replace(/#/g, i) + '</div></div>';
     }
-    html += '<div id="d' + i + '_relbox" class="drel r7 dp' + i + sep + '">' +
+    html += '<div id="d' + i + '_relbox" class="drel r7 dp' + i + '">' +
       '<label class="check"><input type="checkbox" name="d' + i + '_rel" value="Neighbor"> Neighbor</label>' +
       '<label class="check"><input type="checkbox" name="d' + i + '_rel" value="Family Member"> Family Member</label></div>';
+    html += '</div>';
   }
   $("deps").innerHTML = html;
-  // only one of Neighbor / Family Member per deponent
   document.querySelectorAll('.drel input[type=checkbox]').forEach(function (cb) {
     cb.addEventListener("change", function () {
       if (!cb.checked) return;
@@ -32,7 +35,6 @@ var val = function (id) { return ($(id).value || "").trim(); };
   });
 })();
 
-// Input masks
 function digits(s) { return s.replace(/\D/g, ""); }
 function maskCnic(s) {
   var d = digits(s).slice(0, 13);
@@ -50,7 +52,6 @@ bindMask($("mobile"), maskMobile);
 document.querySelectorAll('[data-mask="cnic"]').forEach(function (e) { bindMask(e, maskCnic); });
 document.querySelectorAll('[data-mask="mobile"]').forEach(function (e) { bindMask(e, maskMobile); });
 
-// Years between dates
 function years(a, b) {
   if (!a || !b) return "";
   var ms = new Date(b) - new Date(a);
@@ -77,10 +78,8 @@ function today() {
   });
 });
 
-// Name under signature
 $("name").addEventListener("input", function () { $("sigName").textContent = this.value.trim(); });
 
-// Photo
 $("photoInput").addEventListener("change", function () {
   var f = this.files && this.files[0];
   if (!f) return;
@@ -93,10 +92,6 @@ $("photoInput").addEventListener("change", function () {
   r.readAsDataURL(f);
 });
 
-
-
-
-// Purpose: tick any ONE option (Visa, Immigration, ...). Choosing another moves the tick.
 (function () {
   var ids = ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"];
   ids.forEach(function (id) {
@@ -114,7 +109,6 @@ $("photoInput").addEventListener("change", function () {
     if (txt) txt.addEventListener("input", function () {
       if (txt.value.trim() && !box.checked) { box.checked = true; box.dispatchEvent(new Event("change")); }
     });
-    // bigger tap area: tapping the empty space around an option also toggles it
     box.closest(".purpose").addEventListener("click", function (e) {
       var tag = e.target.tagName;
       if (tag === "INPUT" || tag === "LABEL") return;
@@ -124,8 +118,6 @@ $("photoInput").addEventListener("change", function () {
   });
 })();
 
-
-// Numbering follows the rows that are visible (passport and extra addresses can be hidden).
 var numMap = {};
 function renumber() {
   var k = 0; numMap = {};
@@ -140,7 +132,6 @@ function renumber() {
 }
 function num(n) { return numMap[n] || n; }
 
-// Passport section: only for Visa / Immigration purposes.
 function passportOn() { return $("p_visa").checked || $("p_imm").checked; }
 function updatePassport() {
   $("passRow").style.display = passportOn() ? "" : "none";
@@ -148,7 +139,6 @@ function updatePassport() {
 }
 ["p_visa", "p_imm", "p_gov", "p_pvt", "p_oth"].forEach(function (id) { $(id).addEventListener("change", updatePassport); });
 
-// Addresses: one by default, "Add another address" reveals No. 6, then No. 7.
 var addrCount = 0;
 function updateAddr() {
   $("addr6Row").style.display = addrCount >= 1 ? "" : "none";
@@ -172,14 +162,12 @@ document.querySelectorAll("[data-rm]").forEach(function (b) {
   });
 });
 
-// Toast
 var tt;
 function toast(msg) {
   var t = $("toast"); t.textContent = msg; t.classList.add("show");
   clearTimeout(tt); tt = setTimeout(function () { t.classList.remove("show"); }, 3200);
 }
 
-// Validation
 function setBad(id, bad) {
   var el = $(id); el.classList.toggle("invalid", bad);
   var f = el.closest(".f"); if (f) f.classList.toggle("bad", bad);
@@ -236,7 +224,6 @@ document.getElementById("appForm").addEventListener("input", function (e) {
 });
 $("agree").addEventListener("change", function () { if (this.checked) $("agreeErr").style.display = "none"; });
 
-// Actions
 $("btnPrint").addEventListener("click", function () {
   if (!validate()) return;
   try { window.print(); } catch (e) { toast("Printing is not available here. Open the link in your browser."); }
@@ -256,14 +243,12 @@ $("btnClear").addEventListener("click", function () {
   toast("Form cleared.");
 });
 
-// ===== Keep the sheet exactly one A4 page =====
 var USER_Z = 1;
-var PAGE_H = 1123 - 46 - 14; // small safety gap so nothing spills to a 2nd page
+var PAGE_H = 1123 - 46 - 14;
 function isMobile() { return document.documentElement.classList.contains("mob"); }
 function setMode() { document.documentElement.classList.toggle("mob", window.matchMedia("(max-width: 700px), (pointer: coarse) and (max-width: 950px)").matches); }
 setMode();
 function fitScreen() {
-  // The filling interface uses the available screen width; A4 sizing is print-only.
   var sc = $("scale");
   if (!sc) return;
   sc.style.zoom = 1;
@@ -276,8 +261,6 @@ function growAll() { document.querySelectorAll("textarea").forEach(growOne); }
 function fitPage() {
   var sc = $("scale"), page = $("page");
   if (!sc || !page) { growAll(); return; }
-
-  // Never shrink the on-screen form to fit a printed page.
   if (!document.documentElement.classList.contains("printing")) {
     sc.style.zoom = 1;
     page.style.zoom = 1;
@@ -285,8 +268,6 @@ function fitPage() {
     growAll();
     return;
   }
-
-  // During printing only, fit the application to a single A4 page where possible.
   var keep = sc.style.zoom;
   sc.style.zoom = 1;
   page.style.zoom = 1;
@@ -297,20 +278,16 @@ function fitPage() {
   z = Math.floor(z * 1000) / 1000;
   page.style.zoom = z;
   growAll();
-  // Only reserve the full A4 height when the content needs scaling down.
-  // If the content is shorter, don't stretch the page and create a blank gap before office-use.
   page.style.minHeight = z < 1 ? (PAGE_H / z) + "px" : "";
   sc.style.zoom = keep;
 }
 var fitTimer;
 function queueFit() { clearTimeout(fitTimer); fitTimer = setTimeout(fitPage, 120); }
-// Single-line inputs never change the page height, so only textareas need work while typing.
 document.getElementById("appForm").addEventListener("input", function (e) {
   if (e.target.tagName !== "TEXTAREA") return;
   if (isMobile()) growOne(e.target); else queueFit();
 });
 document.getElementById("appForm").addEventListener("change", queueFit);
-// Phones fire "resize" when the keyboard opens; only react when the width really changes.
 var lastW = window.innerWidth;
 window.addEventListener("resize", function () {
   if (window.innerWidth === lastW) return;
@@ -320,8 +297,7 @@ function markDates() {
   document.querySelectorAll("input[type=date]").forEach(function (e) { e.classList.toggle("empty", !e.value); });
 }
 window.addEventListener("beforeprint", function () {
-  markDates(); // blank dates must print as blank lines, not "mm/dd/yyyy"
-  // Use the compact A4 stylesheet only while the browser is printing.
+  markDates();
   document.documentElement.classList.add("printing");
   document.documentElement.classList.remove("mob");
   fitScreen();
