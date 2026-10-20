@@ -246,7 +246,13 @@ $("btnClear").addEventListener("click", function () {
 var USER_Z = 1;
 var PAGE_H = 1123 - 46 - 14;
 function isMobile() { return document.documentElement.classList.contains("mob"); }
-function setMode() { document.documentElement.classList.toggle("mob", window.matchMedia("(max-width: 700px), (pointer: coarse) and (max-width: 950px)").matches); }
+function setMode() {
+  // 950px covers typical phones + large phone frames used in previews
+  document.documentElement.classList.toggle(
+    "mob",
+    window.matchMedia("(max-width: 950px), (pointer: coarse) and (max-width: 1100px)").matches
+  );
+}
 setMode();
 function fitScreen() {
   var sc = $("scale");
