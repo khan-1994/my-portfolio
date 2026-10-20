@@ -312,6 +312,7 @@ function initWizard() {
       var b = document.createElement("button");
       b.type = "button";
       b.className = "wiz-dot";
+      b.textContent = String(i);
       b.setAttribute("aria-label", "Go to step " + i);
       b.dataset.step = i;
       b.addEventListener("click", function () {
